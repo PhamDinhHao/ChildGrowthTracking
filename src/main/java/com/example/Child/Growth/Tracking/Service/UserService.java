@@ -1,14 +1,16 @@
 package com.example.Child.Growth.Tracking.Service;
 
 import com.example.Child.Growth.Tracking.Model.User;
-import com.example.Child.Growth.Tracking.ulti.UserRole;
 import com.example.Child.Growth.Tracking.Repository.UserRepository;
+import com.example.Child.Growth.Tracking.ulti.UserRole;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.util.Optional;
 
 @Service
 public class UserService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -28,21 +30,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    // Đảm bảo rằng phương thức này đã được định nghĩa trong UserRepository
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
-
-    // public void addRole(User user, UserRole role) {
-    //     user.getRoles().add(role);
-    //     userRepository.save(user);
-    // }
-
-    // public void removeRole(User user, UserRole role) {
-    //     user.getRoles().remove(role);
-    //     userRepository.save(user);
-    // }
-
-    // public boolean hasRole(User user, UserRole role) {
-    //     return user.getRoles().contains(role);
-    // }
+    // Các phương thức khác
 }
