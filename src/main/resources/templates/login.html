@@ -4,8 +4,7 @@
     <title>Login</title>
 </head>
 <body>
-    <!-- <div th:if="${error}" style="color: red;" th:text="${error}">
-    </div> -->
+    
     <div th:replace="~{header}"></div>
 
     <header class="ex-header">
@@ -31,11 +30,11 @@
                         <!-- Log In Form -->
                         <form action="login" method="post">
                             <div class="mb-4 form-floating">
-                                <input type="text" class="form-control" id="floatingInput" placeholder="Username" name="username">
+                                <input type="text" class="form-control" id="floatingInput" placeholder="Username" name="username" autocomplete="username">
                                 <label for="floatingInput">Username</label>
                             </div>
                             <div class="mb-4 form-floating">
-                                <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name="password">
+                                <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name="password" autocomplete="current-password">
                                 <label for="floatingPassword">Password</label>
                             </div>
                             <!-- <div class="mb-4 form-check">

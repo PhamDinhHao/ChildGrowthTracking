@@ -15,9 +15,7 @@
                 </div> <!-- end of row -->
             </div> <!-- end of container -->
         </header> <!-- end of ex-header -->
-        <!-- end of header -->
 
-        <!-- Basic -->
         <div class="ex-form-1 pt-5 pb-5">
             <div class="container">
                 <div class="row">
@@ -25,17 +23,33 @@
                         <div class="text-box mt-5 mb-5">
                             <p class="mb-4">Already have an account? <a class="blue" href="login">Login</a></p>
 
-                            <!-- Log In Form -->
+                            <!-- Register Form -->
                             <form action="register" method="post">
                                 <div class="mb-4 form-floating">
-                                    <input type="text" class="form-control" id="floatingInput" placeholder="Username" name="username">
+                                    <input type="text" class="form-control" id="floatingInput" placeholder="Username" name="username" required>
                                     <label for="floatingInput">Username</label>
                                 </div>
                                 <div class="mb-4 form-floating">
-                                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name="password">
+                                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name="password" required>
                                     <label for="floatingPassword">Password</label>
                                 </div>
-                                <select name="role">
+                                <div class="mb-4 form-floating">
+                                    <input type="text" class="form-control" id="floatingFullname" placeholder="Full Name" name="fullname" required>
+                                    <label for="floatingFullname">Full Name</label>
+                                </div>
+                                <div class="mb-4 form-floating">
+                                    <input type="email" class="form-control" id="floatingEmail" placeholder="Email" name="email" required>
+                                    <label for="floatingEmail">Email</label>
+                                </div>
+                                <!-- <div class="mb-4 form-floating">
+                                    <input type="date" class="form-control" id="floatingBirthDate" name="birthDate">
+                                    <label for="floatingBirthDate">Birth Date</label>
+                                </div> -->
+                                <div class="mb-4 form-floating">
+                                    <input type="text" class="form-control" id="floatingPhoneNumber" placeholder="Phone Number" name="phoneNumber" required>
+                                    <label for="floatingPhoneNumber">Phone Number</label>
+                                </div>
+                                <select name="role" class="form-select mb-4" required>
                                     <option value="MEMBER">Member</option>
                                     <option value="DOCTOR">Doctor</option>
                                     <option value="ADMIN">Admin</option>
@@ -43,13 +57,11 @@
 
                                 <button type="submit" class="form-control-submit-button">Register</button>
                             </form>
-                            <!-- end of log in form -->
-
+                            <!-- end of register form -->
                         </div> <!-- end of text-box -->
                     </div> <!-- end of col -->
                 </div> <!-- end of row -->
             </div> <!-- end of container -->
         </div> <!-- end of ex-basic-1 -->
-        <!-- end of basic -->
     </body>
 </html>
