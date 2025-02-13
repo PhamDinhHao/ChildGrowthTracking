@@ -2,6 +2,9 @@ package com.example.Child.Growth.Tracking.Model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
+
 import com.example.Child.Growth.Tracking.ulti.UserRole;
 
 @Entity
@@ -24,4 +27,22 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private UserRole role;
+
+    @Column(nullable = false)
+    private String fullname;
+
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Column(nullable = true)
+    private LocalDate birthDate;
+
+    @Column(nullable = true, length = 255) 
+    private String address; 
+
+    @Column(nullable = false, unique = true, length = 15)
+    private String phoneNumber;
+
+    @Column(nullable = true, length = 500)
+    private String avatar; 
 }

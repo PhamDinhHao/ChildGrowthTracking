@@ -14,12 +14,14 @@ import com.example.Child.Growth.Tracking.Service.CustomUserDetailsService;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @SuppressWarnings("unused")
     private final CustomUserDetailsService userDetailsService;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
+    @SuppressWarnings("removal")
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -27,7 +29,11 @@ public class SecurityConfig {
             .headers(headers -> headers
                 .frameOptions().sameOrigin()
                 .xssProtection().disable()
-                .contentSecurityPolicy("default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';")
+                .contentSecurityPolicy("default-src 'self'; "
+                    + "img-src 'self' https://bootdey.com https://www.bootdey.com data:; " 
+                    + "script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net 'unsafe-inline' 'unsafe-eval'; "
+                    + "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
+                    + "font-src 'self' https://cdnjs.cloudflare.com;")
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/register", "/login", "/home", "/css/**", "/js/**", "/images/**").permitAll()
@@ -35,7 +41,7 @@ public class SecurityConfig {
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/home", true) // Chuyển hướng đúng sau khi đăng nhập thành công
+                .defaultSuccessUrl("/home", true)
                 .permitAll()
             )
             .logout(logout -> logout
