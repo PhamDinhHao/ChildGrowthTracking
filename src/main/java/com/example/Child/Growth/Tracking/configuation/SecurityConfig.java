@@ -27,16 +27,16 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .headers(headers -> headers
-                .frameOptions().sameOrigin()
-                .xssProtection().disable()
                 .contentSecurityPolicy("default-src 'self'; "
                     + "img-src 'self' https://bootdey.com https://www.bootdey.com data:; " 
                     + "script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net 'unsafe-inline' 'unsafe-eval'; "
-                    + "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
-                    + "font-src 'self' https://cdnjs.cloudflare.com;")
+                    + "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://use.fontawesome.com; "
+                    + "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com https://fonts.googleapis.com https://use.fontawesome.com ")
             )
+
+            
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/register", "/login", "/home", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers("/register", "/login", "/home", "/css/**", "/js/**", "/images/**", "/webfonts/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

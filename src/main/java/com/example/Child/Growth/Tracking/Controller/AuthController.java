@@ -30,7 +30,8 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String showLoginForm() {
+    public String showLoginForm(Model model) {
+        model.addAttribute("page", "login"); 
         return "login";
     }
 
@@ -58,7 +59,9 @@ public class AuthController {
     }
 
     @GetMapping("/register")
-    public String showRegisterPage() {
+    public String showRegisterPage(Model model) {
+        model.addAttribute("page", "register"); 
+
         return "register";
     }
 

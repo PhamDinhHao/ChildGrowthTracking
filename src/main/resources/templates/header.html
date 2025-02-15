@@ -1,16 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <th:block th:switch="${page}">
+        <title th:case="'login'">Login</title>
+        <title th:case="'register'">Register</title>
+        <title th:case="home">Home</title> 
+        <title th:case="'profile'">Profile</title>
+
+    </th:block>
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         
     <!-- Styles -->
-    <!-- <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"> -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link href="/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/fontawesome-all.min.css" rel="stylesheet">
     <link href="/css/swiper.css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
     
-    <link th:if="${page == 'profile'}" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link th:if="${page == 'profile'}" href="/css/profile.css" rel="stylesheet">
+    <link th:if="${page == 'profile' or page == 'profile-update'}" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:if="${page == 'profile' or page == 'profile-update'}" href="/css/profile.css" rel="stylesheet">
 
     <!-- Favicon  -->
     <link rel="icon" href="/images/favicon.png">
@@ -39,7 +49,7 @@
                         <a class="nav-link" th:classappend="${page == 'features' ? 'active' : ''}" href="#">Features</a>
                     </li>   
                     <li class="nav-item" sec:authorize="isAuthenticated()">
-                        <a class="nav-link" th:classappend="${page == 'profile' ? 'active' : ''}" href="/profile">
+                        <a class="nav-link" th:classappend="${page == 'profile' or page == 'profile-update' ? 'active' : ''}" href="/profile">
                             Hi, <span class="" sec:authentication="name"></span> 
                         </a>
                     </li>                       
@@ -60,4 +70,3 @@
     </nav> <!-- end of navbar -->
     <!-- end of navigation -->
 
-</body>
