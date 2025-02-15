@@ -86,7 +86,7 @@ public class AuthController {
 
             // Đăng ký người dùng
             userService.registerUser(username, password, userRole, fullname, email, phoneNumber);
-            return "login";  // Chuyển hướng đến trang đăng nhập
+            return "redirect:/login";  // Chuyển hướng đến trang đăng nhập
         } catch (Exception e) {
             model.addAttribute("error", "Registration failed: " + e.getMessage());
             return "register";  // Trả về trang đăng ký nếu có lỗi
