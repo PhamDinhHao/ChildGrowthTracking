@@ -82,7 +82,7 @@ public class AuthController {
             if (userRole == null) return "register"; // Trả về nếu vai trò không hợp lệ
 
             // Đăng ký người dùng
-            userService.registerUser(username, passwordEncoder.encode(password), userRole, fullname, email, phoneNumber);
+            userService.registerUser(username, password, userRole, fullname, email, phoneNumber);
             return "login";  // Chuyển hướng đến trang đăng nhập
         } catch (Exception e) {
             model.addAttribute("error", "Registration failed: " + e.getMessage());
