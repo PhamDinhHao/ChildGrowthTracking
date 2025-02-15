@@ -4,9 +4,17 @@ import com.example.Child.Growth.Tracking.Model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
+    Optional<User> findById(Long id);
+    List<User> findAll();
+    void deleteById(Long id);
+    User save(User user);
+    User findByPhoneNumber(String phoneNumber);
+    User findByFullName(String fullName);
+    User findByRole(String role);
 }
