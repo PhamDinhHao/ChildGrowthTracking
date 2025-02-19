@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.Child.Growth.Tracking.Model.User;
 import com.example.Child.Growth.Tracking.Service.UserService;
@@ -16,7 +17,11 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
 import java.io.File;
@@ -57,8 +62,6 @@ public class UserController {
     public String profileUpdate(Model model) {
         model.addAttribute("page", "profile-update");
 
-        System.out.println("Navigating to: profile-update"); // Debug kiểm tra
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.isAuthenticated()) {
@@ -76,7 +79,8 @@ public class UserController {
             @RequestParam(value = "address", required = false) String address,
             @RequestParam(value = "phone_number", required = false) String phoneNumber,
             @RequestParam(value = "birth_date", required = false) String birthDateStr,
-            @RequestParam(value = "avatar", required = false) MultipartFile avatarFile) throws IOException {
+            @RequestParam(value = "avatar", required = false) MultipartFile avatarFile,
+            RedirectAttributes redirectAttributes) throws IOException {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -91,6 +95,16 @@ public class UserController {
             return "redirect:/login";
         }
 
+        // Kiểm tra số điện thoại có bị trùng không (ngoại trừ chính user đang đăng nhập)
+        if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
+            Optional<User> existingUser = userService.findByPhoneNumber(phoneNumber);
+            if (existingUser.isPresent() && !existingUser.get().getId().equals(user.getId())) {
+                redirectAttributes.addFlashAttribute("error", "Phone number already exists!");
+                return "redirect:/profile/update";
+            }
+            user.setPhoneNumber(phoneNumber);
+        }
+        
         // Chỉ cập nhật nếu có giá trị mới
         if (fullname != null && !fullname.trim().isEmpty()) {
             user.setFullName(fullname);
@@ -99,9 +113,6 @@ public class UserController {
             user.setAddress(address);
         } else {
             user.setAddress(null);
-        }
-        if (phoneNumber != null && !phoneNumber.trim().isEmpty()) {
-            user.setPhoneNumber(phoneNumber);
         }
 
         // Cập nhật birthDate nếu hợp lệ
@@ -144,4 +155,6 @@ public class UserController {
 
         return "redirect:/profile";
     }
+
+    
 }

@@ -27,27 +27,29 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .headers(headers -> headers
-                .contentSecurityPolicy("default-src 'self'; "
-                    + "img-src 'self' https://bootdey.com https://www.bootdey.com data:; " 
-                    + "script-src 'self' https://code.jquery.com https://cdn.jsdelivr.net 'unsafe-inline' 'unsafe-eval'; "
-                    + "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://use.fontawesome.com; "
-                    + "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com https://fonts.googleapis.com https://use.fontawesome.com ")
+                .contentSecurityPolicy("default-src *; img-src * data:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline'; font-src * data:;")
             )
 
             
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/check-username", "/check-email", "/check-phone").permitAll()
                 .requestMatchers("/register", "/login", "/home", "/css/**", "/js/**", "/images/**", "/webfonts/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .loginPage("/login")
                 .defaultSuccessUrl("/home", true)
+                .failureUrl("/login?error=invalid") // Nếu đăng nhập sai, chuyển hướng với ?error=invalid
                 .permitAll()
             )
             .logout(logout -> logout
                 .logoutSuccessUrl("/login")
                 .permitAll()
-            );
+            )
+            .exceptionHandling()
+            .authenticationEntryPoint((request, response, authException) -> {
+                response.sendRedirect("/login?error=unauthorized");  // Chuyển hướng nếu chưa đăng nhập
+            });
 
         return http.build();
     }

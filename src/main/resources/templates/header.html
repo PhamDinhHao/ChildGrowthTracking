@@ -55,7 +55,7 @@
                     </li>
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link" th:classappend="${page == 'manageUsers' ? 'active' : ''}" href="/manageUsers">
-                            Manage Users
+                            Manage
                         </a>
                     </li>
                 </ul>
@@ -74,4 +74,40 @@
         </div> <!-- end of container -->
     </nav> <!-- end of navbar -->
     <!-- end of navigation -->
+
+    <!-- Hiển thị thông báo lỗi / thành công -->
+    <div class="container" style="margin-top: 100px;">
+        
+        <div th:if="${param.error != null and param.error[0] == 'unauthorized'}" 
+                class="alert alert-danger alert-dismissible fade show" role="alert">
+            Please log in first.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Hiển thị lỗi sai mật khẩu -->
+        <div th:if="${param.error != null and param.error[0] == 'invalid'}" 
+                class="alert alert-danger alert-dismissible fade show" role="alert">
+            Invalid username or password.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Hiển thị thông báo đăng xuất thành công -->
+        <div th:if="${param.logout != null}" 
+                class="alert alert-success alert-dismissible fade show" role="alert">
+            You have been logged out successfully.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+    </div>
+    
 
