@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.time.LocalDate;
 
-import com.example.Child.Growth.Tracking.ulti.ConsultationStatus;
 
 @Entity
 @Table(name = "feedback")
