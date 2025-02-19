@@ -4,15 +4,21 @@ import com.example.Child.Growth.Tracking.Model.User;
 import com.example.Child.Growth.Tracking.ulti.UserRole;
 import com.example.Child.Growth.Tracking.Security.JwtUtil;
 import com.example.Child.Growth.Tracking.Service.UserService;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 
 @Controller
 public class AuthController {
@@ -32,20 +38,20 @@ public class AuthController {
     @GetMapping("/login")
     public String showLoginForm(Model model) {
         model.addAttribute("page", "login"); 
+                
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Kiểm tra nếu đã đăng nhập, chuyển hướng về home
+        if (authentication != null && authentication.isAuthenticated() && !authentication.getPrincipal().equals("anonymousUser")) {
+            return "redirect:/home";
+        }
+
         return "login";
     }
 
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, Model model) {
         Optional<User> userOpt = userService.findByUsername(username);
-        
-        // Kiểm tra mật khẩu
-        if (userOpt.isPresent()) {
-
-            logger.debug("Password matches: {}", passwordEncoder.matches(password, userOpt.get().getPassword()));  // In ra kết quả kiểm tra mật khẩu
-            System.out.println("Password matches: {}" + passwordEncoder.matches(password, userOpt.get().getPassword()));  // In ra kết quả kiểm tra mật khẩu
-
-        }
 
         // If user is found and password matches
         if (userOpt.isPresent() && passwordEncoder.matches(password, userOpt.get().getPassword())) {
@@ -68,11 +74,12 @@ public class AuthController {
     @PostMapping("/register")
     public String register(@RequestParam String username, 
                         @RequestParam String password,
+                        @RequestParam String confirmPassword,
                         @RequestParam String fullname,
                         @RequestParam String email,
                         @RequestParam String phoneNumber,
-                        @RequestParam(required = false) String role, 
-                        Model model) {
+                        Model model,
+                        RedirectAttributes redirectAttributes) {
         try {
             // Kiểm tra tên người dùng đã tồn tại
             if (userService.findByUsername(username).isPresent()) {
@@ -80,12 +87,16 @@ public class AuthController {
                 return "register";  // Trả về trang đăng ký với thông báo lỗi
             }
 
-            // Kiểm tra vai trò người dùng
-            UserRole userRole = (role != null && !role.isEmpty()) ? getUserRole(role, model) : UserRole.MEMBER;
-            if (userRole == null) return "register"; // Trả về nếu vai trò không hợp lệ
+            // Kiểm tra mật khẩu và xác nhận mật khẩu có giống nhau không
+            if (!password.equals(confirmPassword)) {
+                model.addAttribute("error", "Passwords do not match.");
+                return "register";  // Trả về form đăng ký với lỗi
+            }
 
             // Đăng ký người dùng
-            userService.registerUser(username, password, userRole, fullname, email, phoneNumber);
+            userService.registerUser(username, password, UserRole.MEMBER, fullname, email, phoneNumber);
+            redirectAttributes.addFlashAttribute("success", "Registration successful.");
+
             return "redirect:/login";  // Chuyển hướng đến trang đăng nhập
         } catch (Exception e) {
             model.addAttribute("error", "Registration failed: " + e.getMessage());
@@ -113,6 +124,27 @@ public class AuthController {
     public String home(Model model) {
         model.addAttribute("page", "home"); 
         return "home";
+    }
+
+    @GetMapping("/check-username")
+    @ResponseBody
+    public Map<String, Boolean> checkUsername(@RequestParam String username) {
+        boolean exists = userService.existsByUsername(username);
+        return Collections.singletonMap("available", !exists);
+    }
+
+    @GetMapping("/check-email")
+    @ResponseBody
+    public Map<String, Boolean> checkEmail(@RequestParam String email) {
+        boolean exists = userService.existsByEmail(email);
+        return Collections.singletonMap("available", !exists);
+    }
+
+    @GetMapping("/check-phone")
+    @ResponseBody
+    public Map<String, Boolean> checkPhone(@RequestParam String phone) {
+        boolean exists = userService.existsByPhone(phone);
+        return Collections.singletonMap("available", !exists);
     }
     
 }

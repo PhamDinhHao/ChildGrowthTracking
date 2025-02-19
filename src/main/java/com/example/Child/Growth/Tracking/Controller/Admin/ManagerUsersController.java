@@ -1,5 +1,9 @@
 package com.example.Child.Growth.Tracking.Controller.Admin;
 
+import java.util.List;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,8 +33,24 @@ public class ManagerUsersController {
     public String manageUsers(Model model) {
         model.addAttribute("page", "manageUsers"); 
 
-        model.addAttribute("users", userService.findAll());
-        return "manageUsers";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    
+        // Kiểm tra nếu người dùng đã đăng nhập
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();  // Lấy username của người dùng
+
+            // Giả sử bạn có một phương thức để lấy thông tin người dùng từ username
+            User user = userService.findByUsername(username).orElse(null);  // Trả về user nếu tìm thấy, nếu không trả về null
+
+            // Thêm đối tượng user vào model
+            if (user != null) {
+                model.addAttribute("user", user);
+            }
+        }
+        
+        List<User> users = userService.findAll();
+        model.addAttribute("users", users);
+        return "admin/manageUsers";
     }
 
     @GetMapping("/edit/{id}")
@@ -38,7 +58,7 @@ public class ManagerUsersController {
         User user = userService.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         model.addAttribute("user", user);
         model.addAttribute("availableRoles", UserRole.values());
-        return "editUser";
+        return "admin/editUser";
     }
 
     @PostMapping("/update")
@@ -63,7 +83,7 @@ public class ManagerUsersController {
     public String showCreateUserForm(Model model) {
         model.addAttribute("user", new User());
         model.addAttribute("availableRoles", UserRole.values());
-        return "createUser";
+        return "admin/createUser";
     }
 
     @PostMapping("/create")
