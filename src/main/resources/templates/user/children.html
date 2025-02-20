@@ -1,0 +1,40 @@
+<div th:replace="~{header}"></div>
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Children List</h3>
+                <a th:href="@{/children/create}" class="btn btn-primary">Add Child</a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Birth Date</th>
+                        <th>Gender</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="children : ${children}">
+                        <td th:text="${children.fullName}"></td>
+                        <td th:text="${children.birthDate}"></td>
+                        <td th:text="${children.gender}"></td>
+                        <td>
+                            <a th:href="@{/children/edit/{id}(id=${children.id})}" class="btn btn-primary">Edit</a>
+                            <a th:href="@{/children/delete/{id}(id=${children.id})}" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{footer}"></div>

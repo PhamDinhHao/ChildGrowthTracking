@@ -1,6 +1,5 @@
 package com.example.Child.Growth.Tracking.Service;
 
-import com.example.Child.Growth.Tracking.Model.User;
 import com.example.Child.Growth.Tracking.Repository.UserRepository;
 
 import org.springframework.context.annotation.Lazy;
@@ -12,9 +11,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.Child.Growth.Tracking.Model.User;
+
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
+    private User user;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;  // Đảm bảo inject PasswordEncoder
 
@@ -57,6 +59,10 @@ public class CustomUserDetailsService implements UserDetailsService {
             .password(user.getPassword())
             .authorities(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))  // Phân quyền rõ ràng hơn
             .build();
+    }
+
+    public Long getId() {
+        return user.getId();
     }
 
 }
