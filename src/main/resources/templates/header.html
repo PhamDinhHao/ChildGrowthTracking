@@ -19,8 +19,10 @@
     <link href="/css/swiper.css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
     
-    <link th:if="${page == 'profile' or page == 'profile-update'}" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link th:if="${page == 'profile' or page == 'profile-update'}" href="/css/profile.css" rel="stylesheet">
+    <link th:if="${page == 'profile' or page == 'profile-update' or page == 'profile-changepass'}" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:if="${page == 'profile' or page == 'profile-update' or page == 'profile-changepass'}" href="/css/profile.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet" />
+    <link th:if="${page == 'blog'}" href="/css/blog.css" rel="stylesheet">
 
     <!-- Favicon  -->
     <link rel="icon" href="/images/favicon.png">
@@ -46,7 +48,7 @@
                         <a class="nav-link" th:classappend="${page == 'home' ? 'active' : ''}" href="/home">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" th:classappend="${page == 'features' ? 'active' : ''}" href="#">Features</a>
+                        <a class="nav-link" th:classappend="${page == 'blog' ? 'active' : ''}" href="/blog">Blog</a>
                     </li>   
                     <li class="nav-item" sec:authorize="isAuthenticated()">
                         <a class="nav-link" th:classappend="${page == 'profile' or page == 'profile-update' ? 'active' : ''}" href="/profile">
@@ -76,7 +78,7 @@
     <!-- end of navigation -->
 
     <!-- Hiển thị thông báo lỗi / thành công -->
-    <div class="container" style="margin-top: 100px;">
+    <div class="container" style="margin-top: 75px;">
         
         <div th:if="${param.error != null and param.error[0] == 'unauthorized'}" 
                 class="alert alert-danger alert-dismissible fade show" role="alert">
