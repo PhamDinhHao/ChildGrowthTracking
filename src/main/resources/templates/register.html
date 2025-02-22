@@ -123,7 +123,7 @@
         const phoneValid = await checkAvailability("phone", document.getElementById("floatingPhone").value);
         const passwordValid = checkPasswordMatch();  // Kiểm tra mật khẩu và xác nhận mật khẩu
 
-        if (usernameValid && emailValid && phoneValid) {
+        if (usernameValid && emailValid && phoneValid && passwordValid) {
             e.target.submit(); // Nếu không có lỗi thì gửi form
         }
     });

@@ -1,6 +1,7 @@
 package com.example.Child.Growth.Tracking.Controller;
 
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,11 +18,9 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 
 import java.io.File;
@@ -31,6 +30,9 @@ import java.io.IOException;
 public class UserController {
 
     private final UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     // Autowire the UserService
     public UserController(UserService userService) {
@@ -156,5 +158,64 @@ public class UserController {
         return "redirect:/profile";
     }
 
-    
+    @GetMapping("/changepass")
+    public String changePass(Model model) {
+        model.addAttribute("page", "profile-changepass");
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            User user = userService.findByUsername(username).orElse(null);
+            model.addAttribute("user", user);
+        }
+        
+        return "profile";
+    }
+
+    @PostMapping("/changepass")
+    public String changePass(
+            @RequestParam("currentPassword") String currentPassword,
+            @RequestParam("newPassword") String newPassword,
+            @RequestParam("confirmPassword") String confirmPassword,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+
+        // Kiểm tra nếu người dùng chưa đăng nhập
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+
+        String username = authentication.getName();
+        User user = userService.findByUsername(username).orElse(null);
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        // Kiểm tra mật khẩu hiện tại có đúng không
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            redirectAttributes.addFlashAttribute("error", "Current password is incorrect.");
+            // model.addAttribute("error", "Current password is incorrect.");
+
+            return "redirect:/profile/changepass";
+        }
+
+        // Kiểm tra mật khẩu mới có khớp không
+        if (!newPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("error", "New password and confirm password do not match.");
+            // model.addAttribute("error", "New password and confirm password do not match.");
+
+            return "redirect:/profile/changepass";
+        }
+        
+        // Mã hóa mật khẩu mới và cập nhật vào database
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userService.save(user);
+
+        redirectAttributes.addFlashAttribute("success", "Password changed successfully.");
+        return "redirect:/profile";
+    }
+
 }
