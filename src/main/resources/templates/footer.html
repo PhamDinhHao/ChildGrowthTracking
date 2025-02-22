@@ -81,10 +81,10 @@
 
 <!-- Chỉ thêm các script cho trang profile -->
 <!-- <script th:if="${page == 'profile'}" data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script> -->
-<script th:if="${page == 'profile' or page == 'profile-update'}" src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
-<script th:if="${page == 'profile' or page == 'profile-update'}" src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
-<script th:if="${page == 'profile' or page == 'profile-update'}" type="text/javascript">
-    // Các mã JavaScript dành riêng cho trang Profile
+<script th:if="${page == 'profile' or page == 'profile-update' or page == 'profile-changepass'}" src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script th:if="${page == 'profile' or page == 'profile-update' or page == 'profile-changepass' or page == 'blog'}" src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:if="${page == 'profile' or page == 'profile-update' or page == 'profile-changepass'}" type="text/javascript">
 </script>
 
 </body>
