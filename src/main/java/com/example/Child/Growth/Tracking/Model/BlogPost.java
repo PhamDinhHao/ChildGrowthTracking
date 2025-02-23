@@ -4,7 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Locale;
 
+import com.example.Child.Growth.Tracking.ulti.CateBlog;
 
 @Entity
 @Table(name = "blog_posts")
@@ -20,11 +25,13 @@ public class BlogPost {
     @Column(nullable = false)
     private String title;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    private CateBlog category;
+
+    @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
-
-    @Column(name = "author_id", nullable = false)
-    private Long authorId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDate createdAt;
@@ -34,8 +41,13 @@ public class BlogPost {
         createdAt = LocalDate.now();
     }
 
-    @ManyToOne
-    @JoinColumn(name = "author_id", insertable = false, updatable = false)
+    public String getFormattedDate() {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH);
+        return createdAt.format(formatter);
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY) // Quan hệ ManyToOne với User
+    @JoinColumn(name = "author_id")
     private User author;
 }
 

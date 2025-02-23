@@ -10,6 +10,11 @@
     <link href="/css-admin/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Thư viện Quill -->
+    <script src="https://cdn.tiny.cloud/1/tfy10c6434w744ef4v5d4u56stg4f2uftj5dshgzrer40b9p/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
+
 </head>
 <body class="sb-nav-fixed">
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
@@ -50,7 +55,7 @@
 
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseUsers" aria-expanded="false" aria-controls="collapseUsers">
                             <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                            <span th:text="Users">Users</span>
+                            <span th:text="Users"></span>
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
                         <div class="collapse" id="collapseUsers" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
@@ -60,14 +65,14 @@
                             </nav>
                         </div>
                         
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseOrders" aria-expanded="false" aria-controls="collapseOrders">
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseBlogs" aria-expanded="false" aria-controls="collapseOrders">
                             <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                            <span th:text="Orders"></span>
+                            <span th:text="Blogs"></span>
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
-                        <div class="collapse" id="collapseOrders" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                        <div class="collapse" id="collapseBlogs" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="#">List Orders</a>
+                                <a class="nav-link" th:href="@{/manageBlogs}">List Blogs</a>
                                 <a class="nav-link" href="#">Updating ...</a>
                             </nav>
                         </div>

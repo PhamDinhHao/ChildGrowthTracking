@@ -1,0 +1,66 @@
+<div class="tab-pane" 
+     th:classappend="${page == 'profile-changepass' ? ' active show' : ''}" 
+     role="tabpanel">
+    <h4 class="card-title mb-4">Change Password</h4>
+    <div class="row">
+        <form action="/profile/changepass" method="post">
+            <div class="mb-4 form-floating">
+                <input type="password" class="form-control" id="currentPassword" placeholder="Current Password" name="currentPassword" autocomplete="off" required>
+                <label for="currentPassword">Current Password</label>
+            </div>
+
+            <div class="mb-4 form-floating">
+                <input type="password" class="form-control" id="newPassword" placeholder="New Password" name="newPassword" autocomplete="off" required>
+                <label for="newPassword">New Password</label>
+            </div>
+
+            <div class="mb-4 form-floating">
+                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm New Password" name="confirmPassword"  autocomplete="off" required>
+                <label for="confirmPassword">Confirm New Password</label>
+                <div id="error-password-match" class="invalid-feedback" style="display: none;"></div>
+            </div>
+
+            <button id="btnChangePass" type="submit" class="btn btn-primary">Change Password</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        function checkPasswordMatch() {
+            let password = document.getElementById("newPassword").value;
+            let confirmPassword = document.getElementById("confirmPassword").value;
+            let errorMessage = document.getElementById("error-password-match");
+            let btnChangePass = document.getElementById("btnChangePass");
+
+
+            if (password !== confirmPassword) {
+                errorMessage.style.display = "block";
+                btnChangePass.disabled = true;
+                errorMessage.innerText = "Passwords do not match.";
+                document.getElementById("confirmPassword").classList.add("is-invalid");
+
+                return false; // Trả về false nếu không khớp
+            } else {
+                errorMessage.style.display = "none";
+                document.getElementById("confirmPassword").classList.remove("is-invalid");
+                btnChangePass.disabled = false;
+
+                return true; // Trả về true nếu khớp
+            }
+        }
+
+        // Gán sự kiện kiểm tra mật khẩu khi nhập
+        document.getElementById("newPassword").addEventListener("input", checkPasswordMatch);
+        document.getElementById("confirmPassword").addEventListener("input", checkPasswordMatch);
+
+        // Chặn submit form nếu mật khẩu không khớp
+        document.querySelector("form").addEventListener("submit", function (e) {
+
+            const passwordValid = checkPasswordMatch();  // Kiểm tra mật khẩu và xác nhận mật khẩu
+
+            e.target.submit();
+        });
+    });
+
+</script>
