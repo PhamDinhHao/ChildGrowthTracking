@@ -20,6 +20,7 @@ import com.example.Child.Growth.Tracking.Service.ChildrenService;
 import com.example.Child.Growth.Tracking.Service.CustomUserDetailsService;
 import com.example.Child.Growth.Tracking.Service.UserService;
 import com.example.Child.Growth.Tracking.ulti.Gender;
+import com.example.Child.Growth.Tracking.ulti.UserRole;
 import com.example.Child.Growth.Tracking.Model.User;
 import com.example.Child.Growth.Tracking.Repository.UserRepository;
 
@@ -41,7 +42,10 @@ public class ChildrenController {
         User currentUser = userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("User not found"));
         model.addAttribute("page", "children"); 
+        model.addAttribute("currentUser", currentUser);
         List<Children> children = childrenService.findByUserId(currentUser.getId());
+        List<User> doctors = userRepository.findByRole(UserRole.DOCTOR);
+        model.addAttribute("doctors", doctors);
         model.addAttribute("children", children);
         return "user/children";
     }

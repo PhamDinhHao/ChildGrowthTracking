@@ -63,6 +63,11 @@
                             Manage
                         </a>
                     </li>
+                    <li class="nav-item" sec:authorize="hasRole('DOCTOR')">
+                        <a class="nav-link" th:classappend="${page == 'manageConsultations' ? 'active' : ''}" href="/Consultations">
+                            Consultations
+                        </a>
+                    </li>
                 </ul>
                 
                 <!-- Kiểm tra nếu đã đăng nhập -->
