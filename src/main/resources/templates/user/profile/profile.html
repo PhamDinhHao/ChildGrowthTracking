@@ -12,8 +12,9 @@
                     <div class="row align-items-center">
                         <div class="col-md-3">
                             <div class="text-center border-end">
-                                <img th:src="@{'/images/avatar/' + ${user.avatar} }"
-                                    class="img-fluid avatar-xxl rounded-circle" alt="Avatar">
+                                <img th:src="${user.avatar != null and user.avatar != '' ? '/images/avatar/' + user.avatar : '/images/avatar/default.png'}"
+                                class="img-fluid avatar-xxl rounded-circle" alt="Avatar">
+                           
                                 <h4 class="text-primary font-size-20 mt-3 mb-2" th:text="${user.fullName}"></h4>
                             </div>
                         </div><!-- end col -->
@@ -76,9 +77,9 @@
 
             <div class="card">
                 <div class="tab-content p-4">
-                    <div th:if="${page == 'profile'}" th:replace="~{profile-group}"></div>
-                    <div th:if="${page == 'profile-update'}" th:replace="~{profile-update}"></div>
-                    <div th:if="${page == 'profile-changepass'}" th:replace="~{profile-changepass}"></div>
+                    <div th:if="${page == 'profile'}" th:replace="~{user/profile/profile-group}"></div>
+                    <div th:if="${page == 'profile-update'}" th:replace="~{user/profile/profile-update}"></div>
+                    <div th:if="${page == 'profile-changepass'}" th:replace="~{user/profile/profile-changepass}"></div>
                 </div>
             </div><!-- end card -->
 

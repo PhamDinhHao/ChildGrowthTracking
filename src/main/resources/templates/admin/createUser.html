@@ -14,11 +14,16 @@
     <div class="row">
         <div class="col-xl-8 offset-xl-2">
             <div class="form-container">
-                <form th:action="@{/manageUsers/create}" th:object="${user}" method="post">
+                <!-- Thêm toast thông báo -->
+                <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3"></div>
+                <form id="userForm" th:action="@{/manageUsers/create}" th:object="${user}" method="post">
 
+                    
+                    <!-- Username -->
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" th:field="*{username}" required>
+                        <div class="invalid-feedback" id="usernameError"></div>
                     </div>
 
                     <div class="mb-3">
@@ -33,12 +38,15 @@
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" th:field="*{email}" required>
+                        <div class="invalid-feedback" id="emailError"></div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="phoneNumber" class="form-label">Phone Number</label>
-                        <input type="text" class="form-control" id="phoneNumber" th:field="*{phoneNumber}">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" id="phone" th:field="*{phoneNumber}">
+                        <div class="invalid-feedback" id="phoneError"></div>
                     </div>
+
 
                     <div class="mb-3">
                         <label for="role" class="form-label">Role</label>
@@ -58,5 +66,89 @@
         </div>
     </div>
 </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const debounce = (func, delay = 500) => {
+            let timeoutId;
+            return (...args) => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => func.apply(this, args), delay);
+            };
+        };
+    
+        const showToast = (message, type = 'success') => {
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            document.getElementById('toastContainer').appendChild(toast);
+            new bootstrap.Toast(toast).show();
+        };
+    
+        const checkField = async (field, value, errorId) => {
+            if (!value) return true;
+            
+            try {
+                const response = await fetch(`/check-${field}?${field}=${encodeURIComponent(value)}`);
+                const data = await response.json();
+                
+                if (!data.available) {
+                    document.getElementById(errorId).textContent = `${field} already exists!`;
+                    document.getElementById(field).classList.add('is-invalid');
+                    return false;
+                }
+                document.getElementById(field).classList.remove('is-invalid');
+                return true;
+            } catch (error) {
+                console.error('Error:', error);
+                return false;
+            }
+        };
+    
+        // Real-time validation cho các trường
+        const fields = [
+            { id: 'username', name: 'username', error: 'usernameError' },
+            { id: 'email', name: 'email', error: 'emailError' },
+            { id: 'phone', name: 'phone', error: 'phoneError' }
+        ];
+    
+        fields.forEach(({ id, name, error }) => {
+            const input = document.getElementById(id);
+            input.addEventListener('input', debounce(async (e) => {
+                await checkField(name, e.target.value.trim(), error);
+            }));
+        });
+    
+        // Xử lý form submit
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const results = await Promise.all(
+                fields.map(({ id, name, error }) => 
+                    checkField(name, document.getElementById(id).value.trim(), error)
+            ));
+    
+            if (results.every(valid => valid)) {
+                // Kiểm tra password
+                const password = document.getElementById('password').value;
+                if (password.length < 6) {
+                    showToast('Password must be at least 6 characters!', 'danger');
+                    return;
+                }
+                
+                // Submit form nếu tất cả valid
+                e.target.submit();
+            } else {
+                showToast('Please fix all errors before submitting!', 'danger');
+            }
+        });
+    });
+    </script>
 
 <div th:replace="~{admin/footer-admin}"></div>
