@@ -1,0 +1,320 @@
+<div th:replace="~{header}"></div>
+
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="text-primary fw-bold mb-2">
+                        <i class="fas fa-stethoscope me-2"></i>Medical Consultations
+                    </h2>
+                    <p class="text-muted mb-0">Review and respond to patient consultation requests</p>
+                </div>
+                <div>
+                    <a th:href="@{/manageConsultations}" class="btn btn-outline-primary">All</a>
+                    <a th:href="@{/manageConsultations/pending}" class="btn btn-outline-primary">Pending</a>
+                    <a th:href="@{/manageConsultations/completed}" class="btn btn-outline-success">Completed</a>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div th:each="consultation : ${consultations}" class="col-md-6">
+            <div class="card consultation-card shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <div class="d-flex gap-3">
+                                <span class="text-muted small">
+                                    <i class="fas fa-calendar-alt me-1"></i>
+                                    <span th:text="${#temporals.format(consultation.createdAt, 'dd MMM yyyy, HH:mm')}"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-success btn-sm" 
+                                    type="button"
+                                    data-bs-toggle="modal" 
+                                    th:data-bs-target="'#childModal' + ${consultation.childId}">
+                                <i class="fas fa-chart-line me-2"></i>Child Growth Info
+                            </button>
+                            <span th:class="${'status-badge ms-2 ' + (consultation.status == 'PENDING' ? 'status-pending' : 'status-completed')}"
+                                  th:text="${consultation.status}">
+                            </span>
+                        </div>
+                        
+                    </div>
+
+                    <div class="consultation-content mb-4">
+                        <h6 class="section-title">
+                            <i class="fas fa-comment-dots me-2"></i>Patient's Request
+                        </h6>
+                        <div class="content-box request-box">
+                            <p class="mb-0" th:text="${consultation.request}"></p>
+                        </div>
+                    </div>
+
+                    <div class="consultation-content">
+                        <h6 class="section-title">
+                            <i class="fas fa-reply me-2"></i>Your Response
+                        </h6>
+                        <div th:if="${consultation.response}" class="content-box response-box">
+                            <p class="mb-0" th:text="${consultation.response}"></p>
+                        </div>
+                        <div th:unless="${consultation.response}" class="response-form">
+                            <form th:action="@{/doctor/consultations/respond/{id}(id=${consultation.id})}" method="post">
+                                <textarea class="form-control mb-3" name="response" rows="4" 
+                                          placeholder="Type your medical advice here..." required></textarea>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i>Send Response
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Thêm Modal hiển thị Growth Records -->
+<div th:each="consultation : ${consultations}" 
+     th:id="'childModal' + ${consultation.childId}" 
+     class="modal fade">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-child me-2"></i>
+                    Child Growth Records
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Growth Records Table -->
+                <div class="growth-records">
+                    <div th:if="${#lists.isEmpty(@growthRecordService.findByChildId(consultation.childId))}" 
+                         class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No growth records found for this child.
+                    </div>
+                    <div th:unless="${#lists.isEmpty(@growthRecordService.findByChildId(consultation.childId))}" 
+                         class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Height (cm)</th>
+                                    <th>Weight (kg)</th>
+                                    <th>BMI</th>
+                                    <th>Record Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="record : ${@growthRecordService.findByChildId(consultation.childId)}">
+                                    <td th:text="${record.height}"></td>
+                                    <td th:text="${record.weight}"></td>
+                                    <td th:text="${#numbers.formatDecimal(record.bmi, 1, 1)}"></td>
+                                    <td th:text="${#temporals.format(record.recordDate, 'dd MMM yyyy')}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Thêm styles cho loading spinner -->
+<style>
+.consultation-card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.consultation-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.status-completed {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+}
+
+.section-title {
+    color: #495057;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+
+.content-box {
+    padding: 1rem;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+}
+
+.request-box {
+    border-left: 4px solid #ffc107;
+}
+
+.response-box {
+    border-left: 4px solid #28a745;
+}
+
+.form-control {
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    padding: 0.75rem;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
+}
+
+.btn-primary {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.small {
+    font-size: 0.875rem;
+}
+
+.info-group {
+    margin-bottom: 1rem;
+}
+
+.info-group label {
+    font-size: 0.875rem;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.modal-content {
+    border: none;
+    border-radius: 15px;
+}
+
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    border-radius: 15px 15px 0 0;
+}
+
+.table {
+    font-size: 0.9rem;
+}
+
+.table th {
+    font-weight: 600;
+}
+
+.btn-outline-info {
+    border-radius: 20px;
+    padding: 0.4rem 1rem;
+    font-size: 0.875rem;
+}
+
+.btn-outline-info:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.growth-records {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+.table > :not(caption) > * > * {
+    padding: 1rem;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0,0,0,.02);
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.growth-records {
+    margin: -1rem;
+}
+
+.modal-body {
+    min-height: 200px;
+}
+
+.alert {
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.alert-info {
+    background-color: rgba(13, 202, 240, 0.1);
+    border-color: rgba(13, 202, 240, 0.2);
+    color: #055160;
+}
+
+.table-responsive {
+    margin: -1rem;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+.table > thead > tr > th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table > tbody > tr:hover {
+    background-color: rgba(0,0,0,.02);
+}
+
+.btn-outline-success {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+}
+
+.btn-outline-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-lg {
+    max-width: 900px;
+}
+</style>
+
+<div th:replace="~{footer}"></div>
