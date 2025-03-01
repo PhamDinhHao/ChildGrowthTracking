@@ -1,0 +1,296 @@
+<div th:replace="~{header}"></div>
+
+<div class="container py-5">
+    <canvas id="growthChart" style="max-height: 400px;"></canvas>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h3 class="text-primary fw-bold mb-4">
+                        <i class="fas fa-child me-2"></i>Child Information
+                    </h3>
+
+                    <div class="child-info">
+                        <div class="mb-3">
+                            <label class="text-muted small">Full Name</label>
+                            <h5 class="mb-0" th:text="${children.fullName}"></h5>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-muted small">Birth Date</label>
+                            <h5 class="mb-0" th:text="${children.birthDate}"></h5>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-muted small">Gender</label>
+                            <h5 class="mb-0" th:text="${children.gender}"></h5>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a th:href="@{/children}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Children
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="text-primary fw-bold">
+                    <i class="fas fa-chart-line me-2"></i>Growth Records
+                </h3>
+                <a th:href="@{/children/growth-records/{childrenId}/create(childrenId=${childrenId})}" 
+                   class="btn btn-primary">
+                   <i class="fas fa-plus me-2"></i>Add Growth Record
+                </a>
+            </div>
+
+            <div class="growth-records-container">
+                <div th:each="growthRecord : ${growthRecords}" class="card mb-3 shadow-sm hover-shadow transition mt-1">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-9">
+                                <div class="d-flex flex-wrap gap-4">
+                                    <div>
+                                        <label class="text-muted small">Record Date</label>
+                                        <h6 class="mb-0" th:text="${growthRecord.recordDate}"></h6>
+                                    </div>
+                                    <div>
+                                        <label class="text-muted small">Weight</label>
+                                        <h6 class="mb-0" th:text="${growthRecord.weight} + ' kg'"></h6>
+                                    </div>
+                                    <div>
+                                        <label class="text-muted small">Height</label>
+                                        <h6 class="mb-0" th:text="${growthRecord.height} + ' cm'"></h6>
+                                    </div>
+
+                                    
+                                </div>
+
+                                <!-- Phần hiển thị cảnh báo -->
+                                <div class="warning-message mt-3" style="display: none;">
+                                    <div class="alert alert-warning p-2 mb-0">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <span class="warning-text"></span>
+                                    </div>
+                                </div>
+
+                            
+                            </div>
+                            <div class="col-md-3">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <a th:href="@{/children/growth-records/{childrenId}/edit/{id}(childrenId=${childrenId}, id=${growthRecord.id})}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                       <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a th:href="@{/children/growth-records/{childrenId}/delete/{id}(childrenId=${childrenId}, id=${growthRecord.id})}" 
+                                       class="btn btn-outline-danger btn-sm">
+                                       <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{footer}"></div>
+
+<style>
+.hover-shadow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+
+.transition {
+    transition: all 0.3s ease;
+}
+
+.sticky-top {
+    z-index: 100;
+}
+
+.child-info label {
+    margin-bottom: 0.25rem;
+}
+
+.growth-records-container {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+}
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const growthRecords = /*[[${growthRecords}]]*/ [];
+    const child = {
+        gender: /*[[${children.gender}]]*/ 'Unknown', // Giới tính của trẻ
+        birthDate: new Date(/*[[${#temporals.format(children.birthDate, 'yyyy-MM-dd')}]]*/) // Ngày sinh của trẻ
+    };
+
+    console.log("Growth Records:", growthRecords); // Kiểm tra dữ liệu trong console
+
+    // Dữ liệu tham chiếu WHO (cân nặng và chiều cao trung bình theo độ tuổi và giới tính)
+    const whoData = {
+        male: {
+            weight: [3.3, 6.0, 7.8, 9.2, 10.2, 11.1, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0], // Cân nặng (kg) từ 0-18 tuổi
+            height: [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 168, 172, 175, 178, 180, 182, 184] // Chiều cao (cm) từ 0-18 tuổi
+        },
+        female: {
+            weight: [3.2, 5.5, 7.0, 8.2, 9.0, 9.8, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5, 21.5, 22.5], // Cân nặng (kg) từ 0-18 tuổi
+            height: [49, 58, 68, 78, 88, 98, 108, 118, 128, 138, 148, 158, 165, 168, 170, 172, 174, 175, 176] // Chiều cao (cm) từ 0-18 tuổi
+        }
+    };
+
+    // Hàm tính tuổi theo tháng
+    function getAgeInMonths(recordDate) {
+        const diffMonths = (recordDate.getFullYear() - child.birthDate.getFullYear()) * 12;
+        return diffMonths + (recordDate.getMonth() - child.birthDate.getMonth());
+    }
+
+    // Hàm lấy giá trị WHO theo tuổi
+    function getWHOValue(ageMonths, metric) {
+        const genderData = child.gender === 'Male' ? whoData.male : whoData.female;
+        const index = Math.min(Math.floor(ageMonths / 12), 18); // Giới hạn tuổi từ 0-18
+        return genderData[metric][index];
+    }
+
+    // Kiểm tra nếu growthRecords không tồn tại hoặc rỗng
+    if (!growthRecords || growthRecords.length === 0) {
+        console.warn("No growth records found.");
+    } else {
+        // Xử lý dữ liệu
+        const dates = growthRecords.map(record => record.recordDate); // Đảm bảo recordDate là chuỗi
+        const weights = growthRecords.map(record => parseFloat(record.weight)); // Chuyển weight sang số
+        const heights = growthRecords.map(record => parseFloat(record.height)); // Chuyển height sang số
+
+        // Tính toán giá trị WHO tương ứng
+        const whoWeights = growthRecords.map(record => {
+            const recordDate = new Date(record.recordDate);
+            const ageMonths = getAgeInMonths(recordDate);
+            return getWHOValue(ageMonths, 'weight');
+        });
+
+        const whoHeights = growthRecords.map(record => {
+            const recordDate = new Date(record.recordDate);
+            const ageMonths = getAgeInMonths(recordDate);
+            return getWHOValue(ageMonths, 'height');
+        });
+
+
+        // Vẽ biểu đồ
+        const ctx = document.getElementById("growthChart").getContext("2d");
+        new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: dates,
+                datasets: [
+                    {
+                        label: "Weight (kg)",
+                        data: weights,
+                        borderColor: "blue",
+                        fill: false
+                    },
+                    {
+                        label: "Height (cm)",
+                        data: heights,
+                        borderColor: "green",
+                        fill: false
+                    },
+                    {
+                        label: "WHO Weight (kg)",
+                        data: whoWeights,
+                        borderColor: "rgba(0, 0, 255, 0.3)",
+                        borderDash: [5, 5],
+                        fill: false
+                    },
+                    {
+                        label: "WHO Height (cm)",
+                        data: whoHeights,
+                        borderColor: "rgba(0, 255, 0, 0.3)",
+                        borderDash: [5, 5],
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { title: { display: true, text: "Date" } },
+                    y: { title: { display: true, text: "Value" } }
+                }
+            }
+        });
+
+        // Tính toán và hiển thị cảnh báo
+        growthRecords.forEach((record, index) => {
+            // Chuyển đổi record.recordDate thành đối tượng Date
+            const recordDate = new Date(record.recordDate);
+
+            // Tính toán tuổi theo tháng
+            const ageMonths = getAgeInMonths(recordDate);
+
+            // Lấy dữ liệu WHO tương ứng dựa trên giới tính
+            const genderData = child.gender === 'Male' ? whoData.male : whoData.female;
+            const whoWeight = genderData.weight[Math.min(Math.floor(ageMonths / 12), 18)]; // Tính toán chỉ số WHO
+            const whoHeight = genderData.height[Math.min(Math.floor(ageMonths / 12), 18)]; // Tính toán chỉ số WHO
+
+            // Tính toán phần trăm chênh lệch
+            const weightDiff = (record.weight / whoWeight) * 100;
+            const heightDiff = (record.height / whoHeight) * 100;
+
+            // Tạo thông báo cảnh báo
+            const warningMessage = [];
+            if (weightDiff < 85) warningMessage.push("Weight is below the WHO standard.");
+            if (weightDiff > 115) warningMessage.push("Weight is above the WHO standard.");
+            if (heightDiff < 85) warningMessage.push("Height is below the WHO standard.");
+            if (heightDiff > 115) warningMessage.push("Height is above the WHO standard.");
+
+            // Lấy phần tử warning-message
+            const warningElement = document.querySelectorAll(".warning-message")[index];
+            if (warningElement) {
+                const alertDiv = warningElement.querySelector(".alert");
+                const warningText = warningElement.querySelector(".warning-text");
+
+                if (warningMessage.length > 0) {
+                    // Nếu có cảnh báo
+                    warningElement.style.display = "block";
+                    alertDiv.classList.remove("alert-success"); // Xóa lớp "ổn định"
+                    alertDiv.classList.add("alert-warning"); // Thêm lớp cảnh báo
+                    warningText.textContent = warningMessage.join(" "); // Hiển thị cảnh báo
+                } else {
+                    // Nếu không có cảnh báo
+                    warningElement.style.display = "block";
+                    alertDiv.classList.remove("alert-warning"); // Xóa lớp cảnh báo
+                    alertDiv.classList.add("alert-success"); // Thêm lớp "ổn định"
+                    warningText.textContent = "Stable"; // Hiển thị trạng thái "Ổn định"
+                }
+            }
+        });
+        console.log("Dates:", dates);
+        console.log("Weights:", weights);
+        console.log("Heights:", heights);
+        console.log("WHO Weights:", whoWeights);
+        console.log("WHO Heights:", whoHeights);
+        console.log("Growth Records:", growthRecords);
+        console.log("Child Information:", child);
+        console.log("Age in Months:", ageMonths);
+        console.log("WHO Weight:", whoWeight);
+        console.log("WHO Height:", whoHeight);
+        console.log("Weight Difference:", weightDiff);
+        console.log("Height Difference:", heightDiff);
+    }
+    
+    /*]]>*/
+</script>
