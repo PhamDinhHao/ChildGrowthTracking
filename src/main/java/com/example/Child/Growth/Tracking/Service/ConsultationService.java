@@ -20,6 +20,9 @@ public class ConsultationService {
         this.consultationRepository = consultationRepository;
     }
 
+    public List<Consultations> findAll() {
+        return consultationRepository.findAll();
+    }
     public Consultations save(Consultations consultation) {
         try {
             consultation.setCreatedAt(LocalDate.now());
@@ -42,5 +45,12 @@ public class ConsultationService {
     }
     public List<Consultations> findByStatusAndDoctorId(ConsultationStatus status, Long doctorId) {
         return consultationRepository.findByStatusAndDoctorId(status, doctorId);
+    }
+    public void updateResponse(Long id, String response) {
+        Consultations consultation = consultationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Consultation not found"));
+        consultation.setResponse(response);
+        consultation.setStatus(ConsultationStatus.COMPLETED);
+        consultationRepository.save(consultation);
     }
 }

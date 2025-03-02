@@ -103,4 +103,7 @@ public class UserService {
     public boolean existsByPhone(String phoneNumber) {
         return userRepository.findByPhoneNumber(phoneNumber).isPresent();
     }
+    public List<User> findByRole(UserRole role) {
+        return userRepository.findByRole(role);
+    }
 }

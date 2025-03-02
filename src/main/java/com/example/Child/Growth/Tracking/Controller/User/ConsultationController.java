@@ -83,4 +83,9 @@ public class ConsultationController {
         model.addAttribute("consultations", consultations);
         return "doctor/Consultation/index";
     }
+    @PostMapping("/doctor/consultations/respond/{id}")
+    public String respondToConsultation(@PathVariable Long id, @RequestParam String response) {
+        consultationService.updateResponse(id, response);
+        return "redirect:/manageConsultations";
+    }
 }

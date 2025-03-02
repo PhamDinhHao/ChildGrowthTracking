@@ -1,85 +1,113 @@
 <div th:replace="~{header}"></div>
 
-<div class="container py-5">
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2 class="text-primary fw-bold mb-2">
-                        <i class="fas fa-stethoscope me-2"></i>Medical Consultations
-                    </h2>
-                    <p class="text-muted mb-0">Review and respond to patient consultation requests</p>
-                </div>
-                <div>
-                    <a th:href="@{/manageConsultations}" class="btn btn-outline-primary">All</a>
-                    <a th:href="@{/manageConsultations/pending}" class="btn btn-outline-primary">Pending</a>
-                    <a th:href="@{/manageConsultations/completed}" class="btn btn-outline-success">Completed</a>
-                </div>
+<div class="dashboard-container py-5">
+    <div class="container mb-5">
+        <div class="dashboard-header">
+            <div class="dashboard-title">
+                <h2 class="fw-bold">
+                    <i class="fas fa-stethoscope me-2"></i>Medical Consultations
+                </h2>
+                <p class="text-muted">Review patient consultations and provide professional responses</p>
             </div>
             
+            <div class="dashboard-actions">
+                <div class="btn-group filter-group">
+                    <a th:href="@{/manageConsultations}" class="btn btn-light">
+                        <i class="fas fa-list-ul me-1"></i> All
+                    </a>
+                    <a th:href="@{/manageConsultations/pending}" class="btn btn-light">
+                        <i class="fas fa-clock me-1"></i> Pending 
+                        <span class="badge rounded-pill bg-warning ms-1" 
+                              th:text="${#lists.size(consultations.?[status == 'PENDING'])}">0</span>
+                    </a>
+                    <a th:href="@{/manageConsultations/completed}" class="btn btn-light">
+                        <i class="fas fa-check-circle me-1"></i> Completed
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div th:each="consultation : ${consultations}" class="col-md-6">
-            <div class="card consultation-card shadow-sm">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-4">
-                        <div>
-                            <div class="d-flex gap-3">
-                                <span class="text-muted small">
-                                    <i class="fas fa-calendar-alt me-1"></i>
-                                    <span th:text="${#temporals.format(consultation.createdAt, 'dd MMM yyyy, HH:mm')}"></span>
+    <div class="container">
+        <div class="row g-4">
+            <div th:each="consultation : ${consultations}" class="col-lg-6">
+                <div class="consultation-card">
+                    <div class="card-header">
+                        <div class="meta-info">
+                            <div class="date">
+                                <i class="far fa-calendar me-2"></i>
+                                <span th:text="${#temporals.format(consultation.createdAt, 'dd MMM yyyy, HH:mm')}"></span>
+                            </div>
+                            <div class="child-info">
+                                <span th:if="${consultation.childId}" class="child-name">
+                                    <i class="fas fa-child me-1"></i> Child ID: 
+                                    <span th:text="${consultation.childId}"></span>
                                 </span>
                             </div>
                         </div>
-                        <div>
-                            <button class="btn btn-outline-success btn-sm" 
+                        <div class="actions">
+                            <button class="btn-growth" 
                                     type="button"
                                     data-bs-toggle="modal" 
                                     th:data-bs-target="'#childModal' + ${consultation.childId}">
-                                <i class="fas fa-chart-line me-2"></i>Child Growth Info
+                                <i class="fas fa-chart-line"></i>
+                                <span>Growth Data</span>
                             </button>
-                            <span th:class="${'status-badge ms-2 ' + (consultation.status == 'PENDING' ? 'status-pending' : 'status-completed')}"
+                            <span th:class="${'status-pill ' + (consultation.status == 'PENDING' ? 'status-pending' : 'status-completed')}"
                                   th:text="${consultation.status}">
                             </span>
                         </div>
-                        
                     </div>
+                    
+                    <div class="card-content">
+                        <div class="request-section">
+                            <h6 class="section-title">
+                                <i class="fas fa-comment-medical me-2"></i>Patient Request
+                            </h6>
+                            <div class="message request-message">
+                                <p th:text="${consultation.request}"></p>
+                            </div>
+                        </div>
 
-                    <div class="consultation-content mb-4">
-                        <h6 class="section-title">
-                            <i class="fas fa-comment-dots me-2"></i>Patient's Request
-                        </h6>
-                        <div class="content-box request-box">
-                            <p class="mb-0" th:text="${consultation.request}"></p>
+                        <div class="response-section">
+                            <h6 class="section-title">
+                                <i class="fas fa-reply me-2"></i>Doctor Response
+                            </h6>
+                            
+                            <div th:if="${consultation.response}" class="message response-message">
+                                <p th:text="${consultation.response}"></p>
+                            </div>
+                            
+                            <div th:unless="${consultation.response}" class="response-form-container">
+                                <form th:action="@{/doctor/consultations/respond/{id}(id=${consultation.id})}" method="post" class="response-form">
+                                    <div class="form-floating mb-3">
+                                        <textarea class="form-control" name="response" id="responseText" 
+                                                  placeholder="Enter your medical advice" rows="4" required></textarea>
+                                        <label for="responseText">Enter your professional advice</label>
+                                    </div>
+                                    <button type="submit" class="btn-respond">
+                                        <i class="fas fa-paper-plane me-2"></i>Send Response
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="consultation-content">
-                        <h6 class="section-title">
-                            <i class="fas fa-reply me-2"></i>Your Response
-                        </h6>
-                        <div th:if="${consultation.response}" class="content-box response-box">
-                            <p class="mb-0" th:text="${consultation.response}"></p>
-                        </div>
-                        <div th:unless="${consultation.response}" class="response-form">
-                            <form th:action="@{/doctor/consultations/respond/{id}(id=${consultation.id})}" method="post">
-                                <textarea class="form-control mb-3" name="response" rows="4" 
-                                          placeholder="Type your medical advice here..." required></textarea>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-paper-plane me-2"></i>Send Response
-                                </button>
-                            </form>
-                        </div>
+                </div>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(consultations)}" class="col-12">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-inbox"></i>
                     </div>
+                    <h3>No consultations found</h3>
+                    <p>There are currently no consultations to display.</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Thêm Modal hiển thị Growth Records -->
 <div th:each="consultation : ${consultations}" 
      th:id="'childModal' + ${consultation.childId}" 
      class="modal fade">
@@ -93,17 +121,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <!-- Growth Records Table -->
                 <div class="growth-records">
                     <div th:if="${#lists.isEmpty(@growthRecordService.findByChildId(consultation.childId))}" 
-                         class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        No growth records found for this child.
+                         class="empty-records">
+                        <i class="fas fa-chart-area"></i>
+                        <p>No growth records found for this child.</p>
                     </div>
                     <div th:unless="${#lists.isEmpty(@growthRecordService.findByChildId(consultation.childId))}" 
                          class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
+                        <table class="table">
+                            <thead>
                                 <tr>
                                     <th>Height (cm)</th>
                                     <th>Weight (kg)</th>
@@ -130,190 +157,388 @@
     </div>
 </div>
 
-<!-- Thêm styles cho loading spinner -->
 <style>
-.consultation-card {
+:root {
+    --primary-color: #4361ee;
+    --primary-light: #eef2ff;
+    --secondary-color: #2ec4b6;
+    --warning-color: #ff9f1c;
+    --danger-color: #e71d36;
+    --success-color: #2ec4b6;
+    --dark-color: #011627;
+    --text-color: #424242;
+    --text-muted: #6c757d;
+    --bg-light: #f8f9fa;
+    --border-color: #e9ecef;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-md: 0 5px 15px rgba(0,0,0,0.1);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-pill: 50px;
+    --transition: all 0.3s ease;
+}
+
+body {
+    color: var(--text-color);
+    background-color: #f5f7ff;
+}
+
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    background-color: white;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.dashboard-title h2 {
+    font-size: 1.75rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-title p {
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+.dashboard-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.filter-group {
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.filter-group .btn {
     border: none;
-    border-radius: 15px;
-    transition: all 0.3s ease;
+    padding: 0.6rem 1.2rem;
+    font-weight: 500;
+    color: var(--text-color);
+    transition: var(--transition);
+}
+
+.filter-group .btn:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.filter-group .btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.consultation-card {
+    background-color: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: var(--transition);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .consultation-card:hover {
+    box-shadow: var(--shadow-md);
     transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
-.status-badge {
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.25rem;
+    background-color: white;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.meta-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.date, .child-info {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.child-name {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.btn-growth {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border: none;
     padding: 0.5rem 1rem;
-    border-radius: 20px;
+    border-radius: var(--radius-pill);
     font-size: 0.875rem;
     font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-growth:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.status-pill {
+    padding: 0.4rem 1rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .status-pending {
-    background-color: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeeba;
+    background-color: #fff8e6;
+    color: #b86e00;
+    border: 1px solid #ffe4b3;
 }
 
 .status-completed {
-    background-color: #d1e7dd;
-    color: #0f5132;
-    border: 1px solid #badbcc;
+    background-color: #e6fff9;
+    color: #007b6b;
+    border: 1px solid #b3ffe7;
+}
+
+.card-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    flex-grow: 1;
 }
 
 .section-title {
-    color: #495057;
     font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+.message {
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+    background-color: var(--bg-light);
+    font-size: 0.95rem;
+}
+
+.message p {
+    margin-bottom: 0;
+    line-height: 1.6;
+}
+
+.request-message {
+    background-color: #fff9f0;
+    border-left: 4px solid var(--warning-color);
+}
+
+.response-message {
+    background-color: #f0fff9;
+    border-left: 4px solid var(--success-color);
+}
+
+.response-form-container {
+    background-color: #f8f9ff;
+    padding: 1.25rem;
+    border-radius: var(--radius-md);
+}
+
+.form-floating {
     margin-bottom: 1rem;
 }
 
-.content-box {
+.form-floating textarea {
+    height: 120px;
+    resize: none;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
     padding: 1rem;
-    border-radius: 10px;
-    background-color: #f8f9fa;
+    font-size: 0.95rem;
 }
 
-.request-box {
-    border-left: 4px solid #ffc107;
+.form-floating textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.1);
 }
 
-.response-box {
-    border-left: 4px solid #28a745;
-}
-
-.form-control {
-    border-radius: 10px;
-    border: 1px solid #dee2e6;
-    padding: 0.75rem;
-}
-
-.form-control:focus {
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.1);
-}
-
-.btn-primary {
+.btn-respond {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
     padding: 0.75rem 1.5rem;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
 }
 
-.small {
-    font-size: 0.875rem;
+.btn-respond:hover {
+    background-color: #334bcc;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
 }
 
-.info-group {
-    margin-bottom: 1rem;
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    background-color: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
 }
 
-.info-group label {
-    font-size: 0.875rem;
-    display: block;
-    margin-bottom: 0.25rem;
+.empty-icon {
+    font-size: 3rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-color);
+}
+
+.empty-state p {
+    color: var(--text-muted);
+    max-width: 400px;
 }
 
 .modal-content {
     border: none;
-    border-radius: 15px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
 }
 
 .modal-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid rgba(0,0,0,0.1);
-    border-radius: 15px 15px 0 0;
+    background-color: var(--primary-light);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.table {
-    font-size: 0.9rem;
-}
-
-.table th {
+.modal-title {
+    color: var(--primary-color);
     font-weight: 600;
-}
-
-.btn-outline-info {
-    border-radius: 20px;
-    padding: 0.4rem 1rem;
-    font-size: 0.875rem;
-}
-
-.btn-outline-info:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.growth-records {
-    background-color: #fff;
-    border-radius: 10px;
-    padding: 1rem;
-}
-
-.spinner-border {
-    width: 3rem;
-    height: 3rem;
-}
-
-.table > :not(caption) > * > * {
-    padding: 1rem;
-}
-
-.table tbody tr:hover {
-    background-color: rgba(0,0,0,.02);
-}
-
-.table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-}
-
-.growth-records {
-    margin: -1rem;
 }
 
 .modal-body {
-    min-height: 200px;
+    padding: 1.5rem;
 }
 
-.alert {
-    border-radius: 10px;
-    padding: 1rem;
+.growth-records {
+    width: 100%;
 }
 
-.alert-info {
-    background-color: rgba(13, 202, 240, 0.1);
-    border-color: rgba(13, 202, 240, 0.2);
-    color: #055160;
+.empty-records {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
 }
 
-.table-responsive {
-    margin: -1rem;
-    padding: 1rem;
-    background-color: #fff;
-    border-radius: 10px;
+.empty-records i {
+    font-size: 2.5rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
 }
 
-.table > thead > tr > th {
-    background-color: #f8f9fa;
+.empty-records p {
+    color: var(--text-muted);
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: var(--bg-light);
+    color: var(--text-color);
     font-weight: 600;
-    border-bottom: 2px solid #dee2e6;
+    padding: 1rem;
+    border-bottom: 2px solid var(--border-color);
 }
 
-.table > tbody > tr:hover {
-    background-color: rgba(0,0,0,.02);
+.table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.btn-outline-success {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
+.table tbody tr:last-child td {
+    border-bottom: none;
 }
 
-.btn-outline-success:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.table tbody tr:hover {
+    background-color: var(--bg-light);
 }
 
-.modal-lg {
-    max-width: 900px;
+@media (max-width: 992px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .dashboard-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 768px) {
+    .filter-group {
+        width: 100%;
+        display: flex;
+    }
+    
+    .filter-group .btn {
+        flex: 1;
+    }
 }
 </style>
 
