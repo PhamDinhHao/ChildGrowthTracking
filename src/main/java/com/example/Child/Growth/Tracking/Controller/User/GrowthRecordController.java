@@ -1,6 +1,8 @@
 package com.example.Child.Growth.Tracking.Controller.User;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -37,10 +39,17 @@ public class GrowthRecordController {
 
     @GetMapping("/growth-records/{id}")
     public String manageGrowthRecords(@PathVariable Long id, Model model) {
-        model.addAttribute("childrenId", id);
-        List<GrowthRecords> growthRecords = growthRecordService.findByChildId(id);
-        model.addAttribute("children", childrenService.findById(id));
+        Children children = childrenService.findById(id);
+        if (children == null) {
+            throw new IllegalArgumentException("Child not found with id: " + id);
+        }
+        List<GrowthRecords> growthRecords = growthRecordService.findByChildId(id)
+            .stream()
+            .sorted(Comparator.comparing(GrowthRecords::getRecordDate))  // Đổi thành .sorted(Comparator.comparing(GrowthRecords::getRecordDate)) nếu muốn tăng dần
+            .collect(Collectors.toList());
+        model.addAttribute("children", children);
         model.addAttribute("growthRecords", growthRecords);
+        model.addAttribute("childrenId", id);
         model.addAttribute("page", "growth-records");
 
         return "user/Growth/index";

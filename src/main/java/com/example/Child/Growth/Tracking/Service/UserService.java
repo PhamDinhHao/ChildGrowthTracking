@@ -103,6 +103,18 @@ public class UserService {
     public boolean existsByPhone(String phoneNumber) {
         return userRepository.findByPhoneNumber(phoneNumber).isPresent();
     }
+
+    public boolean existsByUsernameAndIdNot(String username, Long id) {
+        return userRepository.findByUsernameAndIdNot(username, id).isPresent();
+    }
+
+    public boolean existsByEmailAndIdNot(String email, Long id) {
+        return userRepository.findByEmailAndIdNot(email, id).isPresent();
+    }
+
+    public boolean existsByPhoneNumberAndIdNot(String phoneNumber, Long id) {
+        return userRepository.findByPhoneNumberAndIdNot(phoneNumber, id).isPresent();
+    }
     public List<User> findByRole(UserRole role) {
         return userRepository.findByRole(role);
     }

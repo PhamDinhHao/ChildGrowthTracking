@@ -91,12 +91,12 @@
 
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseRoles" aria-expanded="false" aria-controls="collapseRoles">
                             <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                            <span th:text="Roles"></span>
+                            <span th:text="Feedbacks"></span>
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
-                        <div class="collapse" id="collapseRoles" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                        <div class="collapse" id="collapseFeedbacks" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" href="#">List Role</a>
+                                <a class="nav-link" th:href="@{/manageFeedbacks}">List Feedbacks</a>
                                 <a class="nav-link" href="#">Updating ...</a>
                             </nav>
                         </div>
