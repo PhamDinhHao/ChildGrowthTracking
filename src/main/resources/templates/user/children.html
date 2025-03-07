@@ -20,7 +20,15 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-start mb-4">
                         <h4 class="card-title text-primary mb-0" th:text="${children.fullName}"></h4>
-                        <span class="badge bg-light text-dark" th:text="${children.gender}"></span>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-light text-dark" th:text="${children.gender}"></span>
+                            <a th:if="${@consultationService.findByChildIdAndStatus(children.id).size() > 0}" 
+                                class="badge bg-info text-white text-decoration-none" 
+                                th:href="@{/consultations/list/{childId}(childId=${children.id})}"
+                                th:text="${@consultationService.findByChildIdAndStatus(children.id).size() + ' Responses'}">
+                            </a>
+                          
+                        </div>
                     </div>
                     
                     <div class="mb-4">
@@ -37,6 +45,12 @@
                            <i class="fas fa-chart-line me-2"></i>View Growth Records
                         </a>
                         
+                        <button class="btn btn-outline-success w-100" 
+                                data-bs-toggle="modal" 
+                                th:data-bs-target="'#shareModal' + ${children.id}">
+                            <i class="fas fa-share-alt me-2"></i>Share with Doctor
+                        </button>
+                        
                         <div class="d-flex gap-2">
                             <a th:href="@{/children/edit/{id}(id=${children.id})}" 
                                class="btn btn-outline-secondary flex-grow-1">
@@ -49,6 +63,41 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div th:each="children : ${children}" class="modal fade" th:id="'shareModal' + ${children.id}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Share Growth Records with Doctor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/consultations/create/{childId}/memberId(childId=${children.id}, memberId=${currentUser.id})}" method="post">
+                    <input type="hidden" name="child_id" th:value="${children.id}">
+                    <input type="hidden" name="member_id" th:value="${currentUser.id}">
+                    <div class="mb-3">
+                        <label for="doctorId" class="form-label">Doctor</label>
+                        <select class="form-control" id="doctorId" name="doctorId" required>
+                            <option value="">Select a Doctor</option>
+                            <option th:each="doctor : ${doctors}" th:value="${doctor.id}" th:text="${doctor.fullName}"></option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="request" class="form-label">Message (Optional)</label>
+                        <textarea class="form-control" id="request" name="request" rows="3"></textarea>
+                    </div>
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Send Share Request
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -96,5 +145,34 @@
 
 .fw-medium {
     font-weight: 500;
+}
+
+.btn-outline-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content {
+    border-radius: 12px;
+    border: none;
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding: 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
 }
 </style>

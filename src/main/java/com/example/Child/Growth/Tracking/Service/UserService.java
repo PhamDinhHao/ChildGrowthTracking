@@ -115,4 +115,7 @@ public class UserService {
     public boolean existsByPhoneNumberAndIdNot(String phoneNumber, Long id) {
         return userRepository.findByPhoneNumberAndIdNot(phoneNumber, id).isPresent();
     }
+    public List<User> findByRole(UserRole role) {
+        return userRepository.findByRole(role);
+    }
 }

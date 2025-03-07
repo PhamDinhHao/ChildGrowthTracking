@@ -1,6 +1,8 @@
 package com.example.Child.Growth.Tracking.Repository;
 
 import com.example.Child.Growth.Tracking.Model.User;
+import com.example.Child.Growth.Tracking.ulti.UserRole;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -24,4 +26,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailAndIdNot(String email, Long id);
     Optional<User> findByPhoneNumberAndIdNot(String phoneNumber, Long id);
     
+    List<User> findByRole(UserRole role);
 }

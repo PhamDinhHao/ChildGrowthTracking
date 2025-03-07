@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -61,7 +60,6 @@
                         <div class="collapse" id="collapseUsers" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" th:href="@{/manageUsers}">List Users</a>
-                                <a class="nav-link" href="#">Updating ...</a>
                             </nav>
                         </div>
                         
@@ -73,11 +71,21 @@
                         <div class="collapse" id="collapseBlogs" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" th:href="@{/manageBlogs}">List Blogs</a>
-                                <a class="nav-link" href="#">Updating ...</a>
                             </nav>
                         </div>
                         
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseFeedbacks" aria-expanded="false" aria-controls="collapseRoles">
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseConsultations" aria-expanded="false" aria-controls="collapseOrders">
+                            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                            <span th:text="Consultations"></span>
+                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                        </a>
+                        <div class="collapse" id="collapseConsultations" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                            <nav class="sb-sidenav-menu-nested nav">
+                                <a class="nav-link" th:href="@{/manageConsultationsAdmin}">List Consultations</a>
+                            </nav>
+                        </div>
+
+                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseFeedbacks" aria-expanded="false" aria-controls="collapseFeedbacks">
                             <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
                             <span th:text="Feedbacks"></span>
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
@@ -85,7 +93,6 @@
                         <div class="collapse" id="collapseFeedbacks" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav">
                                 <a class="nav-link" th:href="@{/manageFeedbacks}">List Feedbacks</a>
-                                <a class="nav-link" href="#">Updating ...</a>
                             </nav>
                         </div>
                         
