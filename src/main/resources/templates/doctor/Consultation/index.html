@@ -17,8 +17,8 @@
                     </a>
                     <a th:href="@{/manageConsultations/pending}" class="btn btn-light">
                         <i class="fas fa-clock me-1"></i> Pending 
-                        <span class="badge rounded-pill bg-warning ms-1" 
-                              th:text="${#lists.size(consultations.?[status == 'PENDING'])}">0</span>
+                        <!-- <span class="badge rounded-pill bg-warning ms-1" 
+                              th:text="${#lists.size(consultations.?[status == 'PENDING'])}">0</span> -->
                     </a>
                     <a th:href="@{/manageConsultations/completed}" class="btn btn-light">
                         <i class="fas fa-check-circle me-1"></i> Completed
@@ -134,7 +134,6 @@
                                 <tr>
                                     <th>Height (cm)</th>
                                     <th>Weight (kg)</th>
-                                    <th>BMI</th>
                                     <th>Record Date</th>
                                 </tr>
                             </thead>
@@ -142,7 +141,6 @@
                                 <tr th:each="record : ${@growthRecordService.findByChildId(consultation.childId)}">
                                     <td th:text="${record.height}"></td>
                                     <td th:text="${record.weight}"></td>
-                                    <td th:text="${#numbers.formatDecimal(record.bmi, 1, 1)}"></td>
                                     <td th:text="${#temporals.format(record.recordDate, 'dd MMM yyyy')}"></td>
                                 </tr>
                             </tbody>
