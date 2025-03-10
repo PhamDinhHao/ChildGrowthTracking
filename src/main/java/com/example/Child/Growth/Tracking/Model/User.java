@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.LocalDate;
 
 import com.example.Child.Growth.Tracking.ulti.UserRole;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "users")
@@ -13,6 +14,7 @@ import com.example.Child.Growth.Tracking.ulti.UserRole;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
