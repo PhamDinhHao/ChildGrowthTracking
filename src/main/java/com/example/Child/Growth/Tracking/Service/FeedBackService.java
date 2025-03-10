@@ -4,6 +4,7 @@ import com.example.Child.Growth.Tracking.Model.FeedBack;
 import com.example.Child.Growth.Tracking.Repository.FeedBackRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -22,5 +23,13 @@ public class FeedBackService {
 
     public void deleteFeedbackById(Long id) {
         feedbackRepository.deleteById(id);
+    }
+
+    public FeedBack saveFeedback(FeedBack feedback) {
+        return feedbackRepository.save(feedback);
+    }
+
+    public Optional<FeedBack> getFeedbackById(Long id) {
+        return feedbackRepository.findById(id);
     }
 }
