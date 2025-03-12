@@ -1,15 +1,9 @@
 <div th:replace="~{header}"></div>
 
-<header class="py-5 text-white border-bottom mb-4" 
-        style="
-            background: url('images/bg_blog.jpg') center/cover no-repeat;
-            min-height: 50vh; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            background-attachment: fixed;
-        ">
+<header class="py-5 text-white border-bottom mb-4"
+        style="background: url('images/bg_blog.jpg') center/cover no-repeat;
+               min-height: 50vh; display: flex; align-items: center;
+               justify-content: center; text-align: center; background-attachment: fixed;">
     <div class="container">
         <div class="text-center my-5">
             <h1 class="fw-bolder text-white">Welcome to Blog Home!</h1>
@@ -17,25 +11,12 @@
     </div>
 </header>
 
-<!-- Page content -->
 <div class="container">
     <div class="row">
-        <!-- Blog entries -->
         <div class="col-lg-8">
-            <div th:each="blog : ${blogs}" class="card mb-4">
-                <a th:href="@{/blog/{id}(id=${blog.id})}">
-                    <!-- <img class="card-img-top" th:src="${blog.imageUrl}" alt="Blog Image" /> -->
-                </a>
-                <div class="card-body">
-                    <div class="small text-muted" th:text="${blog.formattedDate}"></div>
-                    <h2 class="card-title" th:text="${blog.title}"></h2>
-                    <div class="blog-content" th:utext="${blog.content}"></div>
-                    <a class="btn btn-primary" th:href="@{/blog/{id}(id=${blog.id})}">Read more →</a>
-                </div>
-            </div>
+            <div id="blog-list"></div> <!-- Nơi hiển thị danh sách blog -->
         </div>
 
-        <!-- Sidebar -->
         <div class="col-lg-4">
             <!-- Search Widget -->
             <div class="card mb-4">
@@ -43,26 +24,18 @@
                     <h5 class="mb-0"><i class="fas fa-search"></i> Search</h5>
                 </div>
                 <div class="card-body">
-                    <form th:action="@{/blog}" method="get">
-                        <div class="input-group">
-                            <input class="form-control" type="text" name="keyword" placeholder="Search title blogs..." />
-                            <button class="btn btn-primary" type="submit">Go!</button>
-                        </div>
-                    </form>
+                    <input id="search-input" class="form-control" type="text" placeholder="Search title blogs..." />
+                    <button class="btn btn-primary mt-2" onclick="loadBlogs()">Go!</button>
                 </div>
             </div>
 
             <!-- Categories widget -->
-            <div class="card mb-4 shadow-sm">
+            <div class="card mb-4">
                 <div class="card-header text-white">
                     <h5 class="mb-0"><i class="fas fa-list-ul"></i> Categories</h5>
                 </div>
                 <div class="card-body">
-                    <div class="list-group">
-                        <a th:each="category : ${categories}" th:href="@{/blog(category=${category})}" class="list-group-item list-group-item-action d-flex align-items-center">
-                            <i class="fas fa-tag me-2"></i> <span th:text="${category}"></span>
-                        </a>
-                    </div>
+                    <div id="category-list" class="list-group"></div> <!-- Danh mục sẽ được tải từ API -->
                 </div>
             </div>
         </div>
@@ -70,15 +43,56 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        let contentDivs = document.getElementsByClassName("blog-content");
+    document.addEventListener("DOMContentLoaded", function () {
+        loadBlogs();
+        loadCategories();
+    });
 
-        for (let i = 0; i < contentDivs.length; i++) {
-            let text = contentDivs[i].innerText || contentDivs[i].textContent;
-            contentDivs[i].innerText = text.length > 200 ? text.substring(0, 200) + "..." : text;
+    function loadBlogs(category = "", keyword = "") {
+        let url = `/api/blogs?category=${category}&keyword=${keyword}`;
+        fetch(url)
+            .then(response => response.json())
+            .then(blogs => {
+                let blogList = document.getElementById("blog-list");
+                blogList.innerHTML = "";
+                blogs.forEach(blog => {
+                    let blogItem = `
+                        <div class="card mb-4">
+                            <a href="/blog/${blog.id}">
+                                <!-- <img class="card-img-top" src="${blog.imageUrl}" alt="Blog Image" /> -->
+                            </a>
+                            <div class="card-body">
+                                <div class="small text-muted">${new Date(blog.createdAt).toLocaleDateString()}</div>
+                                <h2 class="card-title">${blog.title}</h2>
+                                <p class="blog-content">${blog.content.length > 200 ? blog.content.substring(0, 200) + "..." : blog.content}</p>
+                                <a class="btn btn-primary" href="/blog/${blog.id}">Read more →</a>
+                            </div>
+                        </div>`;
+                    blogList.innerHTML += blogItem;
+                });
+            })
+            .catch(error => console.error("Error loading blogs:", error));
+    }
+
+    function loadCategories() {
+        fetch("/api/blogs/categories")
+            .then(response => response.json())
+            .then(categories => {
+                let categoryList = document.getElementById("category-list");
+                categoryList.innerHTML = "";
+                categories.forEach(category => {
+                    let categoryItem = `<a href="#" class="list-group-item list-group-item-action" onclick="loadBlogs('${category}')">${category}</a>`;
+                    categoryList.innerHTML += categoryItem;
+                });
+            })
+            .catch(error => console.error("Error loading categories:", error));
+    }
+
+    document.getElementById("search-input").addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            loadBlogs("", this.value);
         }
     });
 </script>
-
 
 <div th:replace="~{footer}"></div>

@@ -32,6 +32,8 @@ public class SecurityConfig {
 
             
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/feedbacks", "/api/feedbacks/{id}").permitAll() 
+                .requestMatchers("/api/blogs", "api/blogs/categories", "/api/blogs/{id}").permitAll() 
                 .requestMatchers("/check-username", "/check-email", "/check-phone").permitAll()
                 .requestMatchers("/register", "/login", "/home", "/blog/**", "/feedback/**", "/css/**", "/js/**", "/images/**", "/webfonts/**").permitAll()
                 .anyRequest().authenticated()
