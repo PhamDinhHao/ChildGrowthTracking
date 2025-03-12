@@ -53,5 +53,4 @@ public class BlogController {
         return "user/blog/blog_detail"; // Trả về template
     }
     
-
 }
