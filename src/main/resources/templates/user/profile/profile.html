@@ -12,35 +12,30 @@
                     <div class="row align-items-center">
                         <div class="col-md-3">
                             <div class="text-center border-end">
-                                <img th:src="${user.avatar != null and user.avatar != '' ? '/images/avatar/' + user.avatar : '/images/avatar/default.png'}"
-                                class="img-fluid avatar-xxl rounded-circle" alt="Avatar">
-                           
-                                <h4 class="text-primary font-size-20 mt-3 mb-2" th:text="${user.fullName}"></h4>
+                                <img id="user-avatar" class="img-fluid avatar-xxl rounded-circle" alt="Avatar">
+                                <h4 id="user-fullname" class="text-primary font-size-20 mt-3 mb-2"></h4>
                             </div>
                         </div><!-- end col -->
                         <div class="col-md-9">
                             <div class="ms-3">
                                 <div>
                                     <h4 class="card-title mb-2">Biography</h4>
-                                    
                                 </div>
                                 <div class="row my-4">
                                     <div class="col-md-12">
                                         <div>
                                             <p class="text-muted mb-2 fw-medium">
                                                 <i class="mdi mdi-email-outline me-2"></i>
-                                                <a class="__cf_email__"
-                                                    data-cfemail="a3e9c2cdd0cbd4c6cfcfd0e3d3d1ccc1cac08dc0ccce" th:text="${user.email}">[email&#160;protected]</a>
+                                                <span id="user-email"></span>
                                             </p>
-                                            <p class="text-muted  mb-2 fw-medium">
+                                            <p class="text-muted mb-2 fw-medium">
                                                 <i class="mdi mdi-phone-in-talk-outline me-2"></i>
-                                                <span th:text="${user.phoneNumber}">418-955-4703</span>
+                                                <span id="user-phone"></span>
                                             </p>
                                             <p class="text-muted fw-medium mb-0">
                                                 <i class="mdi mdi-map-marker-outline me-2"></i>
-                                                <span th:text="${user.address != null ? user.address : 'Address not updated'}"></span>
+                                                <span id="user-address"></span>
                                             </p>
-                                            
                                         </div>
                                     </div><!-- end col -->
                                 </div><!-- end row -->
@@ -67,8 +62,6 @@
                                         </a>
                                     </li><!-- end li -->
                                 </ul>
-                                
-
                             </div>
                         </div><!-- end col -->
                     </div><!-- end row -->
@@ -82,12 +75,32 @@
                     <div th:if="${page == 'profile-changepass'}" th:replace="~{user/profile/profile-changepass}"></div>
                 </div>
             </div><!-- end card -->
-
         </div><!-- end col -->
-
     </div>
 </div>
 
-
 <div th:replace="~{footer}"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const userId = "[[${user.id}]]";
+        fetch(`/api/users/${userId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('user-avatar').src = data.avatar ? `/images/avatar/${data.avatar}` : '/images/avatar/default.png';
+                document.getElementById('user-fullname').innerText = data.fullName;
+                document.getElementById('user-email').innerText = data.email;
+                document.getElementById('user-phone').innerText = data.phoneNumber;
+                document.getElementById('user-address').innerText = data.address || 'Address not updated';
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+            });
+    });
+</script>
 

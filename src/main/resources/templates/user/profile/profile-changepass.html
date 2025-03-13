@@ -3,7 +3,7 @@
      role="tabpanel">
     <h4 class="card-title mb-4">Change Password</h4>
     <div class="row">
-        <form action="/profile/changepass" method="post">
+        <form id="changePasswordForm" onsubmit="changePassword(event)">
             <div class="mb-4 form-floating">
                 <input type="password" class="form-control" id="currentPassword" placeholder="Current Password" name="currentPassword" autocomplete="off" required>
                 <label for="currentPassword">Current Password</label>
@@ -15,7 +15,7 @@
             </div>
 
             <div class="mb-4 form-floating">
-                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm New Password" name="confirmPassword"  autocomplete="off" required>
+                <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm New Password" name="confirmPassword" autocomplete="off" required>
                 <label for="confirmPassword">Confirm New Password</label>
                 <div id="error-password-match" class="invalid-feedback" style="display: none;"></div>
             </div>
@@ -27,40 +27,77 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const userId = "[[${user.id}]]"; // Lấy ID người dùng từ Thymeleaf
+
         function checkPasswordMatch() {
             let password = document.getElementById("newPassword").value;
             let confirmPassword = document.getElementById("confirmPassword").value;
             let errorMessage = document.getElementById("error-password-match");
             let btnChangePass = document.getElementById("btnChangePass");
 
-
             if (password !== confirmPassword) {
                 errorMessage.style.display = "block";
                 btnChangePass.disabled = true;
                 errorMessage.innerText = "Passwords do not match.";
                 document.getElementById("confirmPassword").classList.add("is-invalid");
-
-                return false; // Trả về false nếu không khớp
+                return false; // Return false if not matching
             } else {
                 errorMessage.style.display = "none";
                 document.getElementById("confirmPassword").classList.remove("is-invalid");
                 btnChangePass.disabled = false;
-
-                return true; // Trả về true nếu khớp
+                return true; // Return true if matching
             }
         }
 
-        // Gán sự kiện kiểm tra mật khẩu khi nhập
+        // Check password match on input
         document.getElementById("newPassword").addEventListener("input", checkPasswordMatch);
         document.getElementById("confirmPassword").addEventListener("input", checkPasswordMatch);
 
-        // Chặn submit form nếu mật khẩu không khớp
+        // Prevent form submission if passwords do not match
         document.querySelector("form").addEventListener("submit", function (e) {
+            const passwordValid = checkPasswordMatch();  // Check password match
 
-            const passwordValid = checkPasswordMatch();  // Kiểm tra mật khẩu và xác nhận mật khẩu
-
-            e.target.submit();
+            if (!passwordValid) {
+                e.preventDefault(); // Prevent form submission
+            }
         });
     });
+
+    function changePassword(event) {
+    event.preventDefault(); // Ngăn chặn hành động mặc định của form
+
+    const userId = "[[${user.id}]]"; // Lấy ID từ Thymeleaf
+    const currentPassword = document.getElementById("currentPassword").value;
+    const newPassword = document.getElementById("newPassword").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    // Tạo FormData thay vì JSON
+    const formData = new URLSearchParams();
+    formData.append("currentPassword", currentPassword);
+    formData.append("newPassword", newPassword);
+    formData.append("confirmPassword", confirmPassword);
+
+    fetch(`/api/users/${userId}/change-password`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded' // Form URL encoded
+        },
+        body: formData.toString()
+    })
+    .then(response => response.json()) // Chuyển đổi phản hồi thành JSON
+    .then(data => {
+        if (data.error) {
+            alert("Error: " + data.error);
+        } else {
+            alert("Password changed successfully!");
+            // Có thể reset form sau khi đổi mật khẩu thành công
+            document.getElementById("changePasswordForm").reset();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to change password. Please try again.');
+    });
+}
 
 </script>

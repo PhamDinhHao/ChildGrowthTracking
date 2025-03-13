@@ -25,8 +25,17 @@ public class BlogApiController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BlogPost>> getAllBlogs() {
-        List<BlogPost> blogs = blogService.getAllBlogs();
+    public ResponseEntity<List<BlogPost>> getAllBlogs(
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "keyword", required = false) String keyword) {
+        List<BlogPost> blogs;
+        if (category != null && !category.isEmpty()) {
+            blogs = blogService.getBlogsByCategory(category);
+        } else if (keyword != null && !keyword.isEmpty()) {
+            blogs = blogService.searchBlogsByTitle(keyword);
+        } else {
+            blogs = blogService.getAllBlogs();
+        }
         return ResponseEntity.ok(blogs);
     }
 
@@ -70,5 +79,10 @@ public class BlogApiController {
         }
         blogService.deleteBlog(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<String>> getCategories() {
+        return ResponseEntity.ok(blogService.getAllCategories());
     }
 }
