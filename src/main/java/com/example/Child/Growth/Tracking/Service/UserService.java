@@ -153,7 +153,7 @@ public class UserService {
         user.setResetTokenExpiry(LocalDateTime.now().plusMinutes(5));
         userRepository.save(user);
 
-        // emailService.sendOTPEmail(email, otp);
+        emailService.sendOTPEmail(email, otp);
     }
 
     public boolean verifyOTP(String email, String otp) {
