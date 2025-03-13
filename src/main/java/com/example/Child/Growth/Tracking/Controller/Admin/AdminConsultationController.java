@@ -47,54 +47,21 @@ public class AdminConsultationController {
 
     @GetMapping
     public String manageConsultationsAdmin(Model model) {
-        model.addAttribute("page", "manageConsultationsAdmin");
-        
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            String username = authentication.getName();
-
-            User user = userService.findByUsername(username).orElse(null);
-
-            if (user != null) {
-                model.addAttribute("user", user);
-            }
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            userService.findByUsername(auth.getName())
+                    .ifPresent(user -> model.addAttribute("user", user));
         }
-        
-        List<Consultations> consultations = consultationService.findAll();
-        model.addAttribute("consultations", consultations);
         return "admin/manageConsultation";
     }
+
     @GetMapping("/create")
     public String showCreateConsultationForm(Model model) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return "redirect:/login";
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            userService.findByUsername(auth.getName())
+                    .ifPresent(user -> model.addAttribute("user", user));
         }
-    
-        String username = authentication.getName();
-        User user = userService.findByUsername(username).orElse(null);
-    
-        if (user == null) {
-            return "redirect:/manageConsultationsAdmin"; 
-        }
-    
-        List<User> members = userService.findByRole(UserRole.MEMBER);
-        List<User> doctors = userService.findByRole(UserRole.DOCTOR);
-        Map<Long, List<Children>> allChildrenMap = new HashMap<>();
-        for (User member : members) {
-            List<Children> children = childrenService.findByUserId(member.getId());
-            List<Children> childrenDTOs = children.stream()
-                .collect(Collectors.toList());
-            
-            allChildrenMap.put(member.getId(), childrenDTOs);
-        }
-        model.addAttribute("user", user);
-        model.addAttribute("members", members);
-        model.addAttribute("doctors", doctors);
-        model.addAttribute("allChildrenMap", allChildrenMap);
-
-        model.addAttribute("consultation", new Consultations());
         return "admin/createConsultation";
     }
 }

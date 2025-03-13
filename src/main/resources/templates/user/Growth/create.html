@@ -1,25 +1,27 @@
 <div th:replace="~{header}"></div>
 
-
-<div class="container">
+<div class="container mb-3">
     <div class="row">
         <div class="col-md-12">
-            <h3>Add Growth</h3>
-            <form class="mb-3" th:action="@{/children/growth-records/{childrenId}/create(childrenId=${childrenId})}" th:object="${growthRecords}" method="post">
-                <input type="hidden" th:value="${childrenId}" name="child_id">
-                <!-- <input type="hidden" th:value="${childId}" name="childId"> -->
-                <div class="mb-3">
-                    <label for="weight" class="form-label">Weight (kg)</label>
-                    <input type="text" class="form-control" id="weight" name="weight" required>
-                </div>
-                <div class="mb-3">
-                    <label for="height" class="form-label">Height (cm)</label>
-                    <input type="text" class="form-control" id="height" name="height" required>
-                </div>
+            <h3>Create Growth Record</h3>
+            <form id="createGrowthRecordForm" onsubmit="handleSubmit(event)">
+                <input type="hidden" id="childrenId" th:value="${childrenId}">
+                
                 <div class="mb-3">
                     <label for="recordDate" class="form-label">Record Date</label>
                     <input type="date" class="form-control" id="recordDate" name="recordDate" required>
                 </div>
+                
+                <div class="mb-3">
+                    <label for="weight" class="form-label">Weight (kg)</label>
+                    <input type="number" step="0.1" class="form-control" id="weight" name="weight" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="height" class="form-label">Height (cm)</label>
+                    <input type="number" step="0.1" class="form-control" id="height" name="height" required>
+                </div>
+                
                 <button type="submit" class="btn btn-primary">Create</button>
                 <a th:href="@{/children/growth-records/{id}(id=${childrenId})}" class="btn btn-secondary">Cancel</a>
             </form>
@@ -27,5 +29,55 @@
     </div>
 </div>
 
+<script>
+// CSRF setup
+let csrfToken, csrfHeader;
+try {
+    csrfToken = document.querySelector("meta[name='_csrf']")?.content || '';
+    csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content || 'X-CSRF-TOKEN';
+} catch (e) {
+    console.warn('CSRF meta tags not found');
+    csrfToken = '';
+    csrfHeader = 'X-CSRF-TOKEN';
+}
+
+async function handleSubmit(event) {
+    event.preventDefault();
+    const childrenId = document.getElementById('childrenId').value;
+    
+    const formData = {
+        recordDate: document.getElementById('recordDate').value,
+        weight: parseFloat(document.getElementById('weight').value),
+        height: parseFloat(document.getElementById('height').value)
+    };
+
+    try {
+        const response = await fetch(`/api/growth-records/child/${childrenId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) throw new Error('Failed to create growth record');
+        
+        showSuccess('Growth record created successfully');
+        window.location.href = `/children/growth-records/${childrenId}`;
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Failed to create growth record');
+    }
+}
+
+function showSuccess(message) {
+    alert(message); // Replace with your preferred notification system
+}
+
+function showError(message) {
+    alert(message); // Replace with your preferred notification system
+}
+</script>
 
 <div th:replace="~{footer}"></div>

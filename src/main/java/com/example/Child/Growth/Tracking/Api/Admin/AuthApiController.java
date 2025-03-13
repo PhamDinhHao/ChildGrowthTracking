@@ -89,4 +89,10 @@ public class AuthApiController {
         boolean exists = userService.existsByPhone(phone);
         return ResponseEntity.ok(Collections.singletonMap("available", !exists));
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(@RequestParam String email) {
+        userService.sendResetPasswordEmail(email);
+        return ResponseEntity.ok(Collections.singletonMap("message", "Reset password email sent"));
+    }
 }

@@ -12,105 +12,29 @@
             
             <div class="dashboard-actions">
                 <div class="btn-group filter-group">
-                    <a th:href="@{/manageConsultations}" class="btn btn-light">
+                    <button onclick="loadConsultations('ALL')" class="btn btn-light active">
                         <i class="fas fa-list-ul me-1"></i> All
-                    </a>
-                    <a th:href="@{/manageConsultations/pending}" class="btn btn-light">
-                        <i class="fas fa-clock me-1"></i> Pending 
-                        <!-- <span class="badge rounded-pill bg-warning ms-1" 
-                              th:text="${#lists.size(consultations.?[status == 'PENDING'])}">0</span> -->
-                    </a>
-                    <a th:href="@{/manageConsultations/completed}" class="btn btn-light">
+                    </button>
+                    <button onclick="loadConsultations('PENDING')" class="btn btn-light">
+                        <i class="fas fa-clock me-1"></i> Pending
+                    </button>
+                    <button onclick="loadConsultations('COMPLETED')" class="btn btn-light">
                         <i class="fas fa-check-circle me-1"></i> Completed
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="container">
-        <div class="row g-4">
-            <div th:each="consultation : ${consultations}" class="col-lg-6">
-                <div class="consultation-card">
-                    <div class="card-header">
-                        <div class="meta-info">
-                            <div class="date">
-                                <i class="far fa-calendar me-2"></i>
-                                <span th:text="${#temporals.format(consultation.createdAt, 'dd MMM yyyy, HH:mm')}"></span>
-                            </div>
-                            <div class="child-info">
-                                <span th:if="${consultation.childId}" class="child-name">
-                                    <i class="fas fa-child me-1"></i> Child ID: 
-                                    <span th:text="${consultation.childId}"></span>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="actions">
-                            <button class="btn-growth" 
-                                    type="button"
-                                    data-bs-toggle="modal" 
-                                    th:data-bs-target="'#childModal' + ${consultation.childId}">
-                                <i class="fas fa-chart-line"></i>
-                                <span>Growth Data</span>
-                            </button>
-                            <span th:class="${'status-pill ' + (consultation.status == 'PENDING' ? 'status-pending' : 'status-completed')}"
-                                  th:text="${consultation.status}">
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="card-content">
-                        <div class="request-section">
-                            <h6 class="section-title">
-                                <i class="fas fa-comment-medical me-2"></i>Patient Request
-                            </h6>
-                            <div class="message request-message">
-                                <p th:text="${consultation.request}"></p>
-                            </div>
-                        </div>
-
-                        <div class="response-section">
-                            <h6 class="section-title">
-                                <i class="fas fa-reply me-2"></i>Doctor Response
-                            </h6>
-                            
-                            <div th:if="${consultation.response}" class="message response-message">
-                                <p th:text="${consultation.response}"></p>
-                            </div>
-                            
-                            <div th:unless="${consultation.response}" class="response-form-container">
-                                <form th:action="@{/doctor/consultations/respond/{id}(id=${consultation.id})}" method="post" class="response-form">
-                                    <div class="form-floating mb-3">
-                                        <textarea class="form-control" name="response" id="responseText" 
-                                                  placeholder="Enter your medical advice" rows="4" required></textarea>
-                                        <label for="responseText">Enter your professional advice</label>
-                                    </div>
-                                    <button type="submit" class="btn-respond">
-                                        <i class="fas fa-paper-plane me-2"></i>Send Response
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div th:if="${#lists.isEmpty(consultations)}" class="col-12">
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-inbox"></i>
-                    </div>
-                    <h3>No consultations found</h3>
-                    <p>There are currently no consultations to display.</p>
-                </div>
-            </div>
+        <div class="row g-4" id="consultationsContainer">
+            <!-- Consultations will be loaded here -->
         </div>
     </div>
 </div>
 
-<div th:each="consultation : ${consultations}" 
-     th:id="'childModal' + ${consultation.childId}" 
-     class="modal fade">
+<!-- Modal template -->
+<div class="modal fade" id="growthModal">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -121,31 +45,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="growth-records">
-                    <div th:if="${#lists.isEmpty(@growthRecordService.findByChildId(consultation.childId))}" 
-                         class="empty-records">
-                        <i class="fas fa-chart-area"></i>
-                        <p>No growth records found for this child.</p>
-                    </div>
-                    <div th:unless="${#lists.isEmpty(@growthRecordService.findByChildId(consultation.childId))}" 
-                         class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Height (cm)</th>
-                                    <th>Weight (kg)</th>
-                                    <th>Record Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="record : ${@growthRecordService.findByChildId(consultation.childId)}">
-                                    <td th:text="${record.height}"></td>
-                                    <td th:text="${record.weight}"></td>
-                                    <td th:text="${#temporals.format(record.recordDate, 'dd MMM yyyy')}"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="growth-records" id="growthRecordsContainer">
+                    <!-- Growth records will be loaded here -->
                 </div>
             </div>
             <div class="modal-footer">
@@ -154,6 +55,218 @@
         </div>
     </div>
 </div>
+
+<script>
+// CSRF setup
+let csrfToken, csrfHeader;
+try {
+    csrfToken = document.querySelector("meta[name='_csrf']")?.content || '';
+    csrfHeader = document.querySelector("meta[name='_csrf_header']")?.content || 'X-CSRF-TOKEN';
+} catch (e) {
+    console.warn('CSRF meta tags not found');
+    csrfToken = '';
+    csrfHeader = 'X-CSRF-TOKEN';
+}
+
+async function loadConsultations(status = 'ALL') {
+    try {
+        const url = status === 'ALL' 
+            ? '/api/consultations/doctor'
+            : `/api/consultations/doctor/${status}`;
+            
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to fetch consultations');
+        const consultations = await response.json();
+        console.log(consultations);
+        renderConsultations(consultations);
+        updateActiveButton(status);
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Failed to load consultations', 'danger');
+    }
+}
+
+function renderConsultations(consultations) {
+    const container = document.getElementById('consultationsContainer');
+    
+    if (consultations.length === 0) {
+        container.innerHTML = `
+            <div class="col-12">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <h3>No consultations found</h3>
+                    <p>There are currently no consultations to display.</p>
+                </div>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = consultations.map(consultation => `
+        <div class="col-lg-6">
+            <div class="consultation-card">
+                <div class="card-header">
+                    <div class="meta-info">
+                        <div class="date">
+                            <i class="far fa-calendar me-2"></i>
+                            <span>${new Date(consultation.createdAt).toLocaleDateString('en-US', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            })}</span>
+                        </div>
+                        <div class="child-info">
+                            <span class="child-name">
+                                <i class="fas fa-child me-1"></i> Child ID: 
+                                <span>${consultation.childId}</span>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-growth" 
+                                onclick="loadGrowthRecords(${consultation.childId})">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Growth Data</span>
+                        </button>
+                        <span class="status-pill ${consultation.status === 'PENDING' ? 'status-pending' : 'status-completed'}">
+                            ${consultation.status}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-content">
+                    <div class="request-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-comment-medical me-2"></i>Patient Request
+                        </h6>
+                        <div class="message request-message">
+                            <p>${consultation.request}</p>
+                        </div>
+                    </div>
+
+                    <div class="response-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-reply me-2"></i>Doctor Response
+                        </h6>
+                        
+                        ${consultation.response ? `
+                            <div class="message response-message">
+                                <p>${consultation.response}</p>
+                            </div>
+                        ` : `
+                            <div class="response-form-container">
+                                <div class="form-floating mb-3">
+                                    <textarea class="form-control" id="response-${consultation.id}" 
+                                              placeholder="Enter your medical advice" rows="4"></textarea>
+                                    <label for="response-${consultation.id}">Enter your professional advice</label>
+                                </div>
+                                <button onclick="submitResponse(${consultation.id})" class="btn-respond">
+                                    <i class="fas fa-paper-plane me-2"></i>Send Response
+                                </button>
+                            </div>
+                        `}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function submitResponse(consultationId) {
+    const responseText = document.getElementById(`response-${consultationId}`).value;
+    if (!responseText.trim()) {
+        showNotification('Please enter a response', 'warning');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/consultations/${consultationId}/respond`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            body: JSON.stringify({ response: responseText })
+        });
+
+        if (!response.ok) throw new Error('Failed to submit response');
+        
+        showNotification('Response submitted successfully', 'success');
+        await loadConsultations('ALL'); // Reload all consultations
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Failed to submit response', 'danger');
+    }
+}
+
+async function loadGrowthRecords(childId) {
+    try {
+        const response = await fetch(`/api/growth-records/child/${childId}`);
+        if (!response.ok) throw new Error('Failed to fetch growth records');
+        const records = await response.json();
+        
+        renderGrowthRecords(records);
+        const modal = new bootstrap.Modal(document.getElementById('growthModal'));
+        modal.show();
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Failed to load growth records', 'danger');
+    }
+}
+
+function renderGrowthRecords(records) {
+    const container = document.getElementById('growthRecordsContainer');
+    
+    if (!records || records.length === 0) {
+        container.innerHTML = `
+            <div class="empty-records">
+                <i class="fas fa-chart-area"></i>
+                <p>No growth records found for this child.</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Height (cm)</th>
+                        <th>Weight (kg)</th>
+                        <th>Record Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${records.map(record => `
+                        <tr>
+                            <td>${record.height}</td>
+                            <td>${record.weight}</td>
+                            <td>${new Date(record.recordDate).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>`;
+}
+
+function updateActiveButton(status) {
+    document.querySelectorAll('.filter-group .btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`button[onclick*="${status}"]`).classList.add('active');
+}
+
+function showNotification(message, type) {
+    // Implement your notification system here
+    // You can use the same notification system from previous examples
+}
+
+// Load consultations when page loads
+document.addEventListener('DOMContentLoaded', () => loadConsultations('ALL'));
+</script>
 
 <style>
 :root {
