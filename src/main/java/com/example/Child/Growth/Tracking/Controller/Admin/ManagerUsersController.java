@@ -61,43 +61,43 @@ public class ManagerUsersController {
         return "admin/editUser";
     }
 
-    @PostMapping("/update")
-    public String updateUser(@ModelAttribute User user, RedirectAttributes redirectAttributes) {
-        try {
-            User existingUser = userService.findById(user.getId()).orElse(null);
-            if (existingUser == null) {
-                redirectAttributes.addFlashAttribute("errorMessage", "User not found!");
-                return "redirect:/manageUsers";
-            }
+    // @PostMapping("/update")
+    // public String updateUser(@ModelAttribute User user, RedirectAttributes redirectAttributes) {
+    //     try {
+    //         User existingUser = userService.findById(user.getId()).orElse(null);
+    //         if (existingUser == null) {
+    //             redirectAttributes.addFlashAttribute("errorMessage", "User not found!");
+    //             return "redirect:/manageUsers";
+    //         }
     
-            if (!existingUser.getUsername().equals(user.getUsername()) && userService.existsByUsername(user.getUsername())) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Username already exists!");
-                return "redirect:/manageUsers/edit/" + user.getId();
-            }
+    //         if (!existingUser.getUsername().equals(user.getUsername()) && userService.existsByUsername(user.getUsername())) {
+    //             redirectAttributes.addFlashAttribute("errorMessage", "Username already exists!");
+    //             return "redirect:/manageUsers/edit/" + user.getId();
+    //         }
     
-            if (!existingUser.getEmail().equals(user.getEmail()) && userService.existsByEmail(user.getEmail())) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Email already exists!");
-                return "redirect:/manageUsers/edit/" + user.getId();
-            }
+    //         if (!existingUser.getEmail().equals(user.getEmail()) && userService.existsByEmail(user.getEmail())) {
+    //             redirectAttributes.addFlashAttribute("errorMessage", "Email already exists!");
+    //             return "redirect:/manageUsers/edit/" + user.getId();
+    //         }
     
-            if (!existingUser.getPhoneNumber().equals(user.getPhoneNumber()) && userService.existsByPhone(user.getPhoneNumber())) {
-                redirectAttributes.addFlashAttribute("errorMessage", "Phone number already exists!");
-                return "redirect:/manageUsers/edit/" + user.getId();
-            }
+    //         if (!existingUser.getPhoneNumber().equals(user.getPhoneNumber()) && userService.existsByPhone(user.getPhoneNumber())) {
+    //             redirectAttributes.addFlashAttribute("errorMessage", "Phone number already exists!");
+    //             return "redirect:/manageUsers/edit/" + user.getId();
+    //         }
     
-            existingUser.setFullName(user.getFullName());
-            existingUser.setEmail(user.getEmail());
-            existingUser.setPhoneNumber(user.getPhoneNumber());
-            existingUser.setRole(user.getRole());
+    //         existingUser.setFullName(user.getFullName());
+    //         existingUser.setEmail(user.getEmail());
+    //         existingUser.setPhoneNumber(user.getPhoneNumber());
+    //         existingUser.setRole(user.getRole());
     
-            userService.updateUser(existingUser);
-            redirectAttributes.addFlashAttribute("successMessage", "User updated successfully!");
-            return "redirect:/manageUsers";
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error updating user: " + e.getMessage());
-            return "redirect:/manageUsers/edit/" + user.getId();
-        }
-    }
+    //         userService.updateUser(existingUser);
+    //         redirectAttributes.addFlashAttribute("successMessage", "User updated successfully!");
+    //         return "redirect:/manageUsers";
+    //     } catch (Exception e) {
+    //         redirectAttributes.addFlashAttribute("errorMessage", "Error updating user: " + e.getMessage());
+    //         return "redirect:/manageUsers/edit/" + user.getId();
+    //     }
+    // }
     
 
     @GetMapping("/delete/{id}")

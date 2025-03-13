@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.example.Child.Growth.Tracking.ulti.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -47,4 +48,10 @@ public class User {
 
     @Column(nullable = true, length = 500)
     private String avatar; 
+
+    @Column(nullable = true)
+    private String resetToken;
+
+    @Column(nullable = true)
+    private LocalDateTime resetTokenExpiry;
 }

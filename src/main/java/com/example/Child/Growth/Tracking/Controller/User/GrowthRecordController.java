@@ -2,6 +2,7 @@ package com.example.Child.Growth.Tracking.Controller.User;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,28 +40,15 @@ public class GrowthRecordController {
 
     @GetMapping("/growth-records/{id}")
     public String manageGrowthRecords(@PathVariable Long id, Model model) {
-        Children children = childrenService.findById(id);
-        if (children == null) {
-            throw new IllegalArgumentException("Child not found with id: " + id);
-        }
-        List<GrowthRecords> growthRecords = growthRecordService.findByChildId(id)
-            .stream()
-            .sorted(Comparator.comparing(GrowthRecords::getRecordDate))  // Đổi thành .sorted(Comparator.comparing(GrowthRecords::getRecordDate)) nếu muốn tăng dần
-            .collect(Collectors.toList());
-        model.addAttribute("children", children);
-        model.addAttribute("growthRecords", growthRecords);
         model.addAttribute("childrenId", id);
-        model.addAttribute("page", "growth-records");
-
         return "user/Growth/index";
     }
 
     @GetMapping("/growth-records/{childrenId}/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
-        GrowthRecords growthRecord = growthRecordService.findById(id);
-        model.addAttribute("childrenId", growthRecord.getChildId());
-        model.addAttribute("growthRecord", growthRecord);
-
+    public String showEditForm(@PathVariable Long id, @PathVariable Long childrenId, Model model) {
+        model.addAttribute("childrenId", childrenId);
+        model.addAttribute("recordId", id);
+        model.addAttribute("growthRecord", new GrowthRecords());
         return "user/Growth/edit";
     }
 
@@ -84,7 +72,6 @@ public class GrowthRecordController {
 
     @GetMapping("/growth-records/{id}/create")
     public String showCreateGrowthRecordForm(@PathVariable Long id, Model model) {
-        model.addAttribute("growthRecord", new GrowthRecords());
         model.addAttribute("childrenId", id);
         return "user/Growth/create";
     }

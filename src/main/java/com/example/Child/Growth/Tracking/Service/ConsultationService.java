@@ -53,4 +53,7 @@ public class ConsultationService {
         consultation.setStatus(ConsultationStatus.COMPLETED);
         consultationRepository.save(consultation);
     }
+    public void deleteById(Long id) {
+        consultationRepository.deleteById(id);
+    }
 }

@@ -173,5 +173,8 @@ public class AuthController {
         boolean exists = userService.existsByPhoneNumberAndIdNot(phone, userId);
         return Collections.singletonMap("available", !exists);
     }
-    
+    @GetMapping("/forgot-password")
+    public String showForgotPasswordPage() {
+        return "forgotPassword";
+    }
 }

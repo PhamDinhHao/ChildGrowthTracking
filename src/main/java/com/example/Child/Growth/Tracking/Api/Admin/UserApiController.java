@@ -23,6 +23,7 @@ import com.example.Child.Growth.Tracking.Model.BlogPost;
 import com.example.Child.Growth.Tracking.Model.User;
 import com.example.Child.Growth.Tracking.Service.BlogService;
 import com.example.Child.Growth.Tracking.Service.UserService;
+import com.example.Child.Growth.Tracking.ulti.UserRole;
 
 @RestController
 @RequestMapping("/api/users")
@@ -50,24 +51,41 @@ public class UserApiController {
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        // User user = userService.findByUsername(auth.getName()).orElse(null);
-        // if (user == null) {
-        //     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        // }
+    public ResponseEntity<?> createUser(@RequestBody User user) {
+        // Kiểm tra xem username đã tồn tại chưa
+        if (userService.existsByUsername(user.getUsername())) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Username already exists"));
+        }
+
+        // Kiểm tra xem email đã tồn tại chưa
+        if (userService.existsByEmail(user.getEmail())) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Email already exists"));
+        }
+
+        // Kiểm tra xem số điện thoại đã tồn tại chưa
+        if (userService.existsByPhone(user.getPhoneNumber())) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Phone number already exists"));
+        }
+
         User savedUser = userService.save(user);
         return ResponseEntity.ok(savedUser);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {
         return userService.findById(id)
                 .map(existingUser -> {
+                    // Kiểm tra xem email đã tồn tại chưa
+                    if (!existingUser.getEmail().equals(user.getEmail()) && userService.existsByEmail(user.getEmail())) {
+                        return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Email already exists"));
+                    }
+
+                    // Kiểm tra xem số điện thoại đã tồn tại chưa
+                    if (!existingUser.getPhoneNumber().equals(user.getPhoneNumber()) && userService.existsByPhone(user.getPhoneNumber())) {
+                        return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Phone number already exists"));
+                    }
+
                     user.setId(id);
-                    // if (user.getCreatedAt() == null) {
-                    //     user.setCreatedAt(existingUser.getCreatedAt());
-                    // }
                     User updatedUser = userService.save(user);
                     return ResponseEntity.ok(updatedUser);
                 })
@@ -204,5 +222,11 @@ public class UserApiController {
                 return ResponseEntity.ok(Collections.singletonMap("success", "Password changed successfully."));
             })
             .orElse(ResponseEntity.notFound().build()); // Return 404 if user not found
+    }
+
+    @GetMapping("/doctors")
+    public ResponseEntity<List<User>> getDoctors() {
+        List<User> doctors = userService.findByRole(UserRole.DOCTOR);
+        return ResponseEntity.ok(doctors);
     }
 }

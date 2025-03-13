@@ -35,7 +35,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/feedbacks", "/api/feedbacks/{id}").permitAll() 
                 .requestMatchers("/api/blogs", "api/blogs/categories", "/api/blogs/{id}").permitAll() 
                 .requestMatchers("/check-username", "/check-email", "/check-phone").permitAll()
-                .requestMatchers("/register", "/login", "/home", "/blog/**", "/feedback/**", "/css/**", "/js/**", "/images/**", "/webfonts/**").permitAll()
+                .requestMatchers("/api/forgot-password/**").permitAll()
+                .requestMatchers("/forgot-password", "/register", "/login", "/home", "/blog/**", "/feedback/**", "/css/**", "/js/**", "/images/**", "/webfonts/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
