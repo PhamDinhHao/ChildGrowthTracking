@@ -60,6 +60,30 @@
     </div>
 </div>
 
+<!-- Modal template -->
+<div class="modal fade" id="growthModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-child me-2"></i>
+                    Child Growth Records
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="growth-records" id="growthRecordsContainer">
+                    <!-- Growth records will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
 let dataTable;
 let deleteModal;
@@ -109,6 +133,40 @@ async function loadConsultations() {
     }
 }
 
+function renderGrowthRecords(records) {
+    const container = document.getElementById('growthRecordsContainer');
+    
+    if (!records || records.length === 0) {
+        container.innerHTML = `
+            <div class="empty-records">
+                <i class="fas fa-chart-area"></i>
+                <p>No growth records found for this child.</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Height (cm)</th>
+                        <th>Weight (kg)</th>
+                        <th>Record Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${records.map(record => `
+                        <tr>
+                            <td>${record.height}</td>
+                            <td>${record.weight}</td>
+                            <td>${new Date(record.recordDate).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>`;
+}
 function renderConsultationTable(consultations) {
     const tableBody = document.getElementById('consultationTableBody');
     tableBody.innerHTML = '';
@@ -126,7 +184,6 @@ function renderConsultationTable(consultations) {
         `;
         return;
     }
-
     consultations.forEach(consultation => {
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -147,6 +204,10 @@ function renderConsultationTable(consultations) {
             <td>${formatDate(consultation.createdAt)}</td>
             <td class="text-center">
                 <div class="btn-group">
+                    <button onclick="loadGrowthRecords(${consultation.childId})" 
+                            class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-chart-line"></i>
+                    </button>
                     <button onclick="confirmDelete(${consultation.id}, this)" 
                             class="btn btn-sm btn-outline-danger">
                         <i class="fas fa-trash"></i>
@@ -157,7 +218,20 @@ function renderConsultationTable(consultations) {
         tableBody.appendChild(row);
     });
 }
-
+async function loadGrowthRecords(childId) {
+    try {
+        const response = await fetch(`/api/growth-records/child/${childId}`);
+        if (!response.ok) throw new Error('Failed to fetch growth records');
+        const records = await response.json();
+        
+        renderGrowthRecords(records);
+        const modal = new bootstrap.Modal(document.getElementById('growthModal'));
+        modal.show();
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Failed to load growth records', 'danger');
+    }
+}
 function initializeDataTable() {
     dataTable = new simpleDatatables.DataTable("#consultationTable", {
         searchable: true,
@@ -256,6 +330,49 @@ function formatDate(dateString) {
     font-weight: 500;
     padding: 0.5em 1em;
 }
+.modal-content {
+    border: none;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: var(--primary-light);
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-title {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.growth-records {
+    width: 100%;
+}
+.empty-records {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    text-align: center;
+}
+
+.empty-records i {
+    font-size: 2.5rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.empty-records p {
+    color: var(--text-muted);
+}
+
 
 /* Notification Styles */
 .notification {

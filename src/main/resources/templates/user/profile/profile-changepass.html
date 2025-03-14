@@ -12,6 +12,17 @@
             <div class="mb-4 form-floating">
                 <input type="password" class="form-control" id="newPassword" placeholder="New Password" name="newPassword" autocomplete="off" required>
                 <label for="newPassword">New Password</label>
+                <div class="password-requirements small text-muted mt-1">
+                    Password must contain:
+                    <ul class="mb-0">
+                        <li id="length-check">At least 8 characters</li>
+                        <li id="uppercase-check">At least one uppercase letter</li>
+                        <li id="lowercase-check">At least one lowercase letter</li>
+                        <li id="number-check">At least one number</li>
+                        <li id="special-check">At least one special character (!@#$%^&*)</li>
+                    </ul>
+                </div>
+                <div id="error-password-requirements" class="invalid-feedback"></div>
             </div>
 
             <div class="mb-4 form-floating">
@@ -29,36 +40,76 @@
     document.addEventListener('DOMContentLoaded', () => {
         const userId = "[[${user.id}]]"; // Lấy ID người dùng từ Thymeleaf
 
+        function validatePassword(password) {
+            const minLength = 8;
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumbers = /\d/.test(password);
+            const hasSpecialChar = /[!@#$%^&*]/.test(password);
+            
+            // Update visual indicators
+            document.getElementById('length-check').style.color = 
+                password.length >= minLength ? 'green' : 'red';
+            document.getElementById('uppercase-check').style.color = 
+                hasUpperCase ? 'green' : 'red';
+            document.getElementById('lowercase-check').style.color = 
+                hasLowerCase ? 'green' : 'red';
+            document.getElementById('number-check').style.color = 
+                hasNumbers ? 'green' : 'red';
+            document.getElementById('special-check').style.color = 
+                hasSpecialChar ? 'green' : 'red';
+
+            return {
+                isValid: password.length >= minLength && hasUpperCase && 
+                         hasLowerCase && hasNumbers && hasSpecialChar,
+                errors: []
+            };
+        }
+
         function checkPasswordMatch() {
             let password = document.getElementById("newPassword").value;
             let confirmPassword = document.getElementById("confirmPassword").value;
             let errorMessage = document.getElementById("error-password-match");
             let btnChangePass = document.getElementById("btnChangePass");
+            let passwordValidation = validatePassword(password);
 
+            // Kiểm tra yêu cầu mật khẩu
+            if (!passwordValidation.isValid) {
+                btnChangePass.disabled = true;
+                return false;
+            }
+
+            // Kiểm tra khớp mật khẩu
             if (password !== confirmPassword) {
                 errorMessage.style.display = "block";
                 btnChangePass.disabled = true;
                 errorMessage.innerText = "Passwords do not match.";
                 document.getElementById("confirmPassword").classList.add("is-invalid");
-                return false; // Return false if not matching
+                return false;
             } else {
                 errorMessage.style.display = "none";
                 document.getElementById("confirmPassword").classList.remove("is-invalid");
                 btnChangePass.disabled = false;
-                return true; // Return true if matching
+                return true;
             }
         }
 
-        // Check password match on input
-        document.getElementById("newPassword").addEventListener("input", checkPasswordMatch);
+        // Check password requirements on input
+        document.getElementById("newPassword").addEventListener("input", function() {
+            validatePassword(this.value);
+            checkPasswordMatch();
+        });
+
         document.getElementById("confirmPassword").addEventListener("input", checkPasswordMatch);
 
-        // Prevent form submission if passwords do not match
-        document.querySelector("form").addEventListener("submit", function (e) {
-            const passwordValid = checkPasswordMatch();  // Check password match
+        // Prevent form submission if validation fails
+        document.querySelector("form").addEventListener("submit", function(e) {
+            const password = document.getElementById("newPassword").value;
+            const passwordValidation = validatePassword(password);
+            const passwordsMatch = checkPasswordMatch();
 
-            if (!passwordValid) {
-                e.preventDefault(); // Prevent form submission
+            if (!passwordValidation.isValid || !passwordsMatch) {
+                e.preventDefault();
             }
         });
     });
