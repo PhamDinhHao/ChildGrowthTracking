@@ -184,7 +184,6 @@ async function executeDelete(id, button) {
     try {
         button.disabled = true;
         const originalContent = button.innerHTML;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
         const response = await fetch(`/api/users/${id}`, {
             method: 'DELETE'
@@ -197,9 +196,8 @@ async function executeDelete(id, button) {
 
     } catch (error) {
         console.error('Error:', error);
-        showNotification('Failed to delete user', 'danger');
+        showNotification('Account have a children', 'danger');
         button.disabled = false;
-        button.innerHTML = originalContent;
     }
 }
 

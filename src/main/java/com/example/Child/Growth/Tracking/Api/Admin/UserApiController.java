@@ -75,17 +75,18 @@ public class UserApiController {
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {
         return userService.findById(id)
                 .map(existingUser -> {
-                    // Kiểm tra xem email đã tồn tại chưa
                     if (!existingUser.getEmail().equals(user.getEmail()) && userService.existsByEmail(user.getEmail())) {
                         return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Email already exists"));
                     }
 
-                    // Kiểm tra xem số điện thoại đã tồn tại chưa
                     if (!existingUser.getPhoneNumber().equals(user.getPhoneNumber()) && userService.existsByPhone(user.getPhoneNumber())) {
                         return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Phone number already exists"));
                     }
 
                     user.setId(id);
+                    if (user.getPassword() == null) {
+                        user.setPassword(existingUser.getPassword());
+                    }
                     User updatedUser = userService.save(user);
                     return ResponseEntity.ok(updatedUser);
                 })
