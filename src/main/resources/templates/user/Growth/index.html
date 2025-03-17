@@ -145,6 +145,14 @@ const whoData = {
     }
 };
 
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
 async function initialize() {
     try {
         const childResponse = await fetch(`/api/children/${childId}`);
@@ -154,7 +162,7 @@ async function initialize() {
         child.birthDate = new Date(child.birthDate);
         
         document.getElementById('childFullName').textContent = child.fullName;
-        document.getElementById('childBirthDate').textContent = child.birthDate.toLocaleDateString();
+        document.getElementById('childBirthDate').textContent = formatDate(child.birthDate);
         document.getElementById('childGender').textContent = child.gender;
         
         await loadGrowthRecords();
@@ -223,7 +231,6 @@ function dismissNotification(alertDiv) {
 }
 
 function renderGrowthRecords(records) {
-    console.log(records);
     const container = document.querySelector('.growth-records-container');
     container.innerHTML = records.map(record => `
         <div class="card mb-3 shadow-sm hover-shadow transition mt-1">
@@ -233,7 +240,7 @@ function renderGrowthRecords(records) {
                         <div class="d-flex flex-wrap gap-4">
                             <div>
                                 <label class="text-muted small">Record Date</label>
-                                <h6 class="mb-0">${record.recordDate}</h6>
+                                <h6 class="mb-0">${formatDate(record.recordDate)}</h6>
                             </div>
                             <div>
                                 <label class="text-muted small">Weight</label>
@@ -272,7 +279,7 @@ function renderGrowthRecords(records) {
 }
 
 function initializeChart(records) {
-    const dates = records.map(record => record.recordDate);
+    const dates = records.map(record => formatDate(record.recordDate));
     const weights = records.map(record => parseFloat(record.weight));
     const heights = records.map(record => parseFloat(record.height));
 
@@ -333,7 +340,6 @@ function initializeChart(records) {
     });
 }
 
-// Tính toán và hiển thị cảnh báo
 function calculateWarnings(records) {
     records.forEach((record, index) => {
         const recordDate = new Date(record.recordDate);
