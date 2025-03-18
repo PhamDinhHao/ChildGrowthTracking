@@ -90,9 +90,25 @@ document.addEventListener('DOMContentLoaded', () => {
         new bootstrap.Toast(toast).show();
     };
 
+    const validatePhone = (phone) => {
+        const phoneRegex = /^0\d{9}$/;
+        return phoneRegex.test(phone);
+    };
+
     const checkField = async (field, value) => {
         if (!value) return true;
         
+        if (field === 'phone') {
+            const input = document.getElementById(field);
+            const errorDiv = document.getElementById(`${field}Error`);
+            
+            if (!validatePhone(value)) {
+                errorDiv.textContent = 'Invalid phone number (must have 10 numbers and start with 0)';
+                input.classList.add('is-invalid');
+                return false;
+            }
+        }
+
         try {
             const response = await fetch(`/api/auth/check-${field}?${field}=${encodeURIComponent(value)}`, {
                 headers: {

@@ -63,7 +63,6 @@
 
             <div class="card">
                 <div class="tab-content p-4">
-                    <div th:if="${page == 'profile'}" th:replace="~{user/profile/profile-group}"></div>
                     <div th:if="${page == 'profile-update'}" th:replace="~{user/profile/profile-update}"></div>
                     <div th:if="${page == 'profile-changepass'}" th:replace="~{user/profile/profile-changepass}"></div>
                 </div>
