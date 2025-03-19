@@ -66,6 +66,12 @@ public class UserApiController {
         if (userService.existsByPhone(user.getPhoneNumber())) {
             return ResponseEntity.badRequest().body(Collections.singletonMap("error", "Phone number already exists"));
         }
+        if(user.getPassword() == null){
+            user.setPassword(passwordEncoder.encode("123456"));
+        }
+        else{
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
 
         User savedUser = userService.save(user);
         return ResponseEntity.ok(savedUser);
@@ -86,6 +92,9 @@ public class UserApiController {
                     user.setId(id);
                     if (user.getPassword() == null) {
                         user.setPassword(existingUser.getPassword());
+                    }
+                    else{
+                        user.setPassword(passwordEncoder.encode(user.getPassword()));
                     }
                     User updatedUser = userService.save(user);
                     return ResponseEntity.ok(updatedUser);
