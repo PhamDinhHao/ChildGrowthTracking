@@ -138,11 +138,9 @@ async function deleteChild(id) {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                [csrfHeader]: csrfToken
             }
         });
         
-        if (!response.ok) throw new Error('Failed to delete child');
         
         showSuccess('Child deleted successfully');
         const userId = document.getElementById('currentUserId').value;
