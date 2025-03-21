@@ -28,10 +28,11 @@
                     <thead class="table-light">
                         <tr>
                             <th>Username</th>
-                            <th>Full Name</th>
                             <th>Role</th>
+                            <th>Full Name</th>
                             <th>Email</th>
                             <th>Phone Number</th>
+                            <th>Payment Status</th>
                             <th class="text-center">Actions</th>
                         </tr>
                     </thead>
@@ -144,6 +145,7 @@ function renderUserTable(users) {
             </td>
             <td>${(user.email || '')}</td>
             <td>${(user.phoneNumber || '')}</td>
+            <td>${(user.paymentStatus || '')}</td>
             <td class="text-center">
                 <div class="btn-group">
                     <a href="/manageUsers/edit/${user.id}" 

@@ -84,8 +84,18 @@ async function handleSubmit(event) {
         });
 
         if (!response.ok) {
-            const errorData = await response.text();
-            console.error('Server response:', errorData);
+            const errorData = await response.json();
+            if (errorData.error === "User has reached the maximum number of children") {
+                if (confirm("You have reached the maximum number of children allowed. Would you like to upgrade your subscription?")) {
+                    window.location.href = '/payment';
+                }
+                return;
+            } else if (errorData.error === "User has not paid") {
+                if (confirm("You have reached the limit for free users (3 children). Would you like to upgrade to VIP for up to 10 children?")) {
+                    window.location.href = '/payment';
+                }
+                return;
+            }
             throw new Error('Failed to create child');
         }
 
