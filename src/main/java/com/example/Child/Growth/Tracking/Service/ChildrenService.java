@@ -49,5 +49,9 @@ public class ChildrenService {
             throw new RuntimeException("Error creating children: " + e.getMessage());
         }
     }
+    public int countByUserId(Long userId) {
+        return childrenRepository.countByUserId(userId);
+    }
     
+
 }
