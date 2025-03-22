@@ -72,7 +72,7 @@ function loadPaymentHistory() {
         transactions.forEach(transaction => {
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${transaction.paymentDate}</td>
+                <td>${formatDateTime(transaction.paymentDate)}</td>
                 <td>${transaction.transactionRef}</td>
                 <td>${formatCurrency(transaction.amount)} VND</td>
                 <td>
@@ -96,6 +96,19 @@ function loadPaymentHistory() {
 
 function formatCurrency(amount) {
     return new Intl.NumberFormat('vi-VN').format(amount);
+}
+
+function formatDateTime(dateTimeStr) {
+    if (!dateTimeStr) return '';
+    
+    // Extract date and time components
+    const year = dateTimeStr.substring(0, 4);
+    const month = dateTimeStr.substring(4, 6);
+    const day = dateTimeStr.substring(6, 8);
+    const hour = dateTimeStr.substring(8, 10);
+    const minute = dateTimeStr.substring(10, 12);
+    
+    return `${day}/${month}/${year} ${hour}:${minute}`;
 }
 </script>
 
