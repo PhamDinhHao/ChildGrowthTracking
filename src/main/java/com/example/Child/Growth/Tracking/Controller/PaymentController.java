@@ -32,6 +32,10 @@ public class PaymentController {
 
     @GetMapping("/payment")
     public String showPaymentPage(Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userService.findByUsername(username).orElse(null);
+        model.addAttribute("user", user);
         model.addAttribute("page", "payment");
         return "user/payment";
     }

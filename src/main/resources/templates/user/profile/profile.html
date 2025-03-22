@@ -36,6 +36,10 @@
                                                 <i class="mdi mdi-map-marker-outline me-2"></i>
                                                 <span id="user-address"></span>
                                             </p>
+                                            <p class="text-muted fw-medium mb-0">
+                                                <i class="mdi mdi-account-outline me-2"></i>
+                                                <span id="user-role"></span>
+                                            </p>
                                         </div>
                                     </div><!-- end col -->
                                 </div><!-- end row -->
@@ -89,6 +93,7 @@
                 document.getElementById('user-email').innerText = data.email;
                 document.getElementById('user-phone').innerText = data.phoneNumber;
                 document.getElementById('user-address').innerText = data.address || 'Address not updated';
+                document.getElementById('user-role').innerText = data.role;
             })
             .catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
