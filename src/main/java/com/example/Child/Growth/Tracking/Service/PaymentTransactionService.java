@@ -8,7 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class PaymentTransactionService {
@@ -65,5 +69,27 @@ public class PaymentTransactionService {
 
     public List<PaymentTransaction> getTransactionsByUserId(Long userId) {
         return paymentTransactionRepository.findByUserId(userId);
+    }
+
+    public Double calculateTotalRevenue() {
+        List<PaymentTransaction> transactions = paymentTransactionRepository.findByStatus("success");
+        return transactions.stream()
+                .mapToDouble(PaymentTransaction::getAmount)
+                .sum();
+    }
+
+    public Map<String, Double> getRevenueByMonth() {
+        List<PaymentTransaction> transactions = paymentTransactionRepository.findByStatus("success");
+        return transactions.stream()
+                .collect(Collectors.groupingBy(
+                    transaction -> {
+                        LocalDateTime date = LocalDateTime.parse(
+                            transaction.getPaymentDate(),
+                            DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+                        );
+                        return date.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+                    },
+                    Collectors.summingDouble(PaymentTransaction::getAmount)
+                ));
     }
 } 
