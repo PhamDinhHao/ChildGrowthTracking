@@ -21,7 +21,11 @@ role="tabpanel">
             
             <div class="mb-3">
                 <label for="fullname" class="form-label">Full Name</label>
-                <input type="text" id="fullname" name="fullname" class="form-control" th:value="${user.fullName}" required>
+                <input type="text" id="fullname" name="fullname" class="form-control" 
+                       th:value="${user.fullName}" required 
+                       pattern="^[A-Za-z\s]+$"
+                       title="Full name can only contain letters and spaces"
+                       oninput="validateFullName(this)">
             </div>
             
             <div class="mb-3">
@@ -31,7 +35,11 @@ role="tabpanel">
             
             <div class="mb-3">
                 <label for="phone_number" class="form-label">Phone Number</label>
-                <input type="text" id="phone_number" name="phone_number" class="form-control" th:value="${user.phoneNumber}" required>
+                <input type="text" id="phone_number" name="phone_number" class="form-control" 
+                       th:value="${user.phoneNumber}" required
+                       pattern="^0\d{9}$"
+                       title="Phone number must be 10 digits and start with 0"
+                       oninput="validatePhone(this)">
             </div>
             
             <div class="mb-3">
@@ -103,5 +111,23 @@ document.getElementById('birth_date').addEventListener('change', function(e) {
             console.error('Error:', error);
             alert('Failed to update profile. Please try again.');
         });
+    }
+
+    function validateFullName(input) {
+        const fullNameRegex = /^[A-Za-z\s]+$/;
+        if (!fullNameRegex.test(input.value)) {
+            input.setCustomValidity('Full name can only contain letters and spaces');
+        } else {
+            input.setCustomValidity('');
+        }
+    }
+
+    function validatePhone(input) {
+        const phoneRegex = /^0\d{9}$/;
+        if (!phoneRegex.test(input.value)) {
+            input.setCustomValidity('Phone number must be 10 digits and start with 0');
+        } else {
+            input.setCustomValidity('');
+        }
     }
 </script>

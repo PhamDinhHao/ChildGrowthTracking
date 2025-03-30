@@ -30,6 +30,7 @@
                     <div class="mb-3">
                         <label for="fullName" class="form-label">Full Name</label>
                         <input type="text" class="form-control" id="fullName" th:value="${user.fullName}" required>
+                        <div class="invalid-feedback" id="fullNameError"></div>
                     </div>
 
                     <!-- Email -->
@@ -145,16 +146,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
     });
 
+    // Thêm hàm validate fullName
+    const validateFullName = (value) => {
+        const nameRegex = /^[A-Za-zÀ-ỹ\s]+$/;
+        const input = document.getElementById('fullName');
+        const errorDiv = document.getElementById('fullNameError');
+        
+        if (!nameRegex.test(value)) {
+            errorDiv.textContent = 'Full name can only contain letters and spaces';
+            input.classList.add('is-invalid');
+            return false;
+        }
+        input.classList.remove('is-invalid');
+        return true;
+    };
+
+    // Thêm hàm validate phone
+    const validatePhone = (value) => {
+        const phoneRegex = /^0\d{9}$/;
+        const input = document.getElementById('phone');
+        const errorDiv = document.getElementById('phoneError');
+        
+        if (!phoneRegex.test(value)) {
+            errorDiv.textContent = 'Phone number must be 10 digits and start with 0';
+            input.classList.add('is-invalid');
+            return false;
+        }
+        input.classList.remove('is-invalid');
+        return true;
+    };
+
+    // Thêm event listeners cho validation realtime
+    document.getElementById('fullName').addEventListener('input', (e) => {
+        validateFullName(e.target.value.trim());
+    });
+
+    document.getElementById('phone').addEventListener('input', (e) => {
+        validatePhone(e.target.value.trim());
+    });
+
     // Form submission
     document.getElementById('userForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        const fullName = document.getElementById('fullName').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+
+        // Validate before submission
+        if (!validateFullName(fullName) || !validatePhone(phone)) {
+            return;
+        }
+
         const formData = {
             id: userId,
             username: document.getElementById('username').value,
-            fullName: document.getElementById('fullName').value,
+            fullName: fullName,
             email: document.getElementById('email').value,
-            phoneNumber: document.getElementById('phone').value,
+            phoneNumber: phone,
             role: document.getElementById('role').value,
             password: document.getElementById('password').value || undefined,
         };
