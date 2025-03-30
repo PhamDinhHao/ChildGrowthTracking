@@ -13,6 +13,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+
 
 @Service
 public class PaymentTransactionService {
@@ -33,10 +35,31 @@ public class PaymentTransactionService {
         return paymentTransactionRepository.save(transaction);
     }
 
-    public List<PaymentTransaction> getAllTransactions() {
-        return paymentTransactionRepository.findTopNOrderByPaymentDateDesc(10);
+    public List<Map<String, Object>> getAllTransactions() {
+        List<Object[]> results = paymentTransactionRepository.findTopNWithUserNameOrderByPaymentDateDesc();
+        return results.stream()
+                .map(result -> {
+                    PaymentTransaction transaction = (PaymentTransaction) result[0];
+                    String userName = (String) result[1];
+                    
+                    Map<String, Object> transactionMap = new HashMap<>();
+                    transactionMap.put("id", transaction.getId());
+                    transactionMap.put("transactionRef", transaction.getTransactionRef());
+                    transactionMap.put("amount", transaction.getAmount());
+                    transactionMap.put("orderInfo", transaction.getOrderInfo());
+                    transactionMap.put("bankCode", transaction.getBankCode());
+                    transactionMap.put("paymentDate", transaction.getPaymentDate());
+                    transactionMap.put("status", transaction.getStatus());
+                    transactionMap.put("userId", transaction.getUserId());
+                    transactionMap.put("userName", userName != null ? userName : "Unknown");
+                    
+                    return transactionMap;
+                })
+                .collect(Collectors.toList());
     }
-
+    public List<PaymentTransaction> getAll() {
+        return paymentTransactionRepository.findAll();
+    }
     public Optional<PaymentTransaction> getTransactionById(Long id) {
         return paymentTransactionRepository.findById(id);
     }

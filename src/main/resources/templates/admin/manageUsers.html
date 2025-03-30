@@ -131,12 +131,25 @@ function renderUserTable(users) {
 
     users.forEach(user => {
         const row = document.createElement('tr');
+        const getBadgeClass = (role) => {
+            switch(role?.toLowerCase()) {
+                case 'admin':
+                    return 'bg-danger';
+                case 'doctor':
+                    return 'bg-warning';
+                case 'member':
+                    return 'bg-success';
+                default:
+                    return 'bg-secondary';
+            }
+        };
+
         row.innerHTML = `
             <td>
                 <div class="fw-bold">${(user.username || '')}</div>
             </td>
             <td>
-                <span class="badge bg-info">${(user.role || '')}</span>
+                <span class="badge ${getBadgeClass(user.role)}">${(user.role || '')}</span>
             </td>
             <td>
                 <div class="text-truncate" style="max-width: 200px; max-height: 100px;">

@@ -38,4 +38,9 @@ public interface PaymentTransactionRepository extends JpaRepository<PaymentTrans
     List<PaymentTransaction> findTopNOrderByPaymentDateDesc(@Param("limit") int limit);
 
     List<PaymentTransaction> findByUserId(Long userId);
+
+    @Query("SELECT pt, u.fullName FROM PaymentTransaction pt " +
+           "LEFT JOIN User u ON pt.userId = u.id " +
+           "ORDER BY pt.paymentDate DESC LIMIT 10")
+    List<Object[]> findTopNWithUserNameOrderByPaymentDateDesc();
 } 

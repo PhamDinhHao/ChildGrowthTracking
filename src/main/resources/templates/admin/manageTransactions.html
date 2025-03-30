@@ -30,6 +30,7 @@
                             <th>Bank Code</th>
                             <th>Payment Date</th>
                             <th>Status</th>
+                            <th>User Name</th>
                         </tr>
                     </thead>
                     <tbody id="transactionTableBody"></tbody>
@@ -155,6 +156,7 @@ function renderTransactionTable(transactions) {
                     ${transaction.status || ''}
                 </span>
             </td>
+            <td>${transaction.userName || ''}</td>
         `;
         tableBody.appendChild(row);
     });

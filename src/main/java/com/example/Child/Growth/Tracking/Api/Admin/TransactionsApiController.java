@@ -1,6 +1,7 @@
 package com.example.Child.Growth.Tracking.Api.Admin;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +28,8 @@ public class TransactionsApiController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PaymentTransaction>> getAllTransactions() {
-        List<PaymentTransaction> transactions = transactionService.getAllTransactions();
+    public ResponseEntity<List<Map<String, Object>>> getAllTransactions() {
+        List<Map<String, Object>> transactions = transactionService.getAllTransactions();
         return ResponseEntity.ok(transactions);
     }
 
