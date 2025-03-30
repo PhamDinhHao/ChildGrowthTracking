@@ -26,6 +26,7 @@
                     <div class="mb-3">
                         <label for="fullName" class="form-label">Full Name</label>
                         <input type="text" class="form-control" id="fullName" name="fullName" required>
+                        <div class="invalid-feedback" id="fullNameError"></div>
                     </div>
 
                     <div class="mb-3">
@@ -90,6 +91,11 @@ document.addEventListener('DOMContentLoaded', () => {
         new bootstrap.Toast(toast).show();
     };
 
+    const validateFullName = (fullName) => {
+        const nameRegex = /^[A-Za-zÀ-ỹ\s]+$/;
+        return nameRegex.test(fullName);
+    };
+
     const validatePhone = (phone) => {
         const phoneRegex = /^0\d{9}$/;
         return phoneRegex.test(phone);
@@ -98,15 +104,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkField = async (field, value) => {
         if (!value) return true;
         
-        if (field === 'phone') {
-            const input = document.getElementById(field);
-            const errorDiv = document.getElementById(`${field}Error`);
-            
-            if (!validatePhone(value)) {
-                errorDiv.textContent = 'Invalid phone number (must have 10 numbers and start with 0)';
+        const input = document.getElementById(field);
+        const errorDiv = document.getElementById(`${field}Error`);
+
+        if (field === 'fullName') {
+            if (!validateFullName(value)) {
+                errorDiv.textContent = 'Full name can only contain letters and spaces';
                 input.classList.add('is-invalid');
                 return false;
             }
+            input.classList.remove('is-invalid');
+            return true;
+        }
+        
+        if (field === 'phone') {
+            if (!validatePhone(value)) {
+                errorDiv.textContent = 'Phone number must be 10 digits and start with 0';
+                input.classList.add('is-invalid');
+                return false;
+            }
+            input.classList.remove('is-invalid');
+            return true;
         }
 
         try {
@@ -120,8 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error('Network response was not ok');
             
             const data = await response.json();
-            const input = document.getElementById(field);
-            const errorDiv = document.getElementById(`${field}Error`);
             
             if (!data.available) {
                 errorDiv.textContent = `This ${field} is already taken`;
@@ -138,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Real-time validation
-    const fields = ['username', 'email', 'phone'];
+    const fields = ['username', 'email', 'phone', 'fullName'];
     fields.forEach(field => {
         const input = document.getElementById(field);
         input.addEventListener('input', debounce(async (e) => {
