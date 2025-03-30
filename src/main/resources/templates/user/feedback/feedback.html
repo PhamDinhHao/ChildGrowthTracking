@@ -254,6 +254,18 @@
         var feedbackList = document.getElementById('feedbackList');
         feedbackList.innerHTML = ''; // Xóa nội dung cũ
 
+        // Kiểm tra nếu không có feedback hoặc mảng rỗng
+        if (!feedbacks || feedbacks.length === 0) {
+            feedbackList.innerHTML = `
+                <h3 class="text-center">List Feedback</h3>
+                <div class="text-center mt-4">
+                    <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">No feedback available at the moment.</p>
+                </div>
+            `;
+            return;
+        }
+
         // Tạo HTML mới cho danh sách feedback
         var html = `
             <h3 class="text-center">List Feedback</h3>

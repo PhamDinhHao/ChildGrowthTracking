@@ -11,7 +11,6 @@
             <i class="fas fa-plus me-2"></i>Create New Blog
         </a>
     </div>
-
     <!-- Main Card -->
     <div class="card shadow">
         <div class="card-body">
@@ -62,60 +61,60 @@
 </div>
 
 <script>
-let dataTable;
-let deleteModal;
-let blogToDelete;
+    let dataTable;
+    let deleteModal;
+    let blogToDelete;
 
-document.addEventListener('DOMContentLoaded', function() {
-    initializeComponents();
-    loadBlogs();
-});
-
-function initializeComponents() {
-    deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-    
-    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-        if (blogToDelete) {
-            executeDelete(blogToDelete.id, blogToDelete.button);
-        }
-        deleteModal.hide();
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeComponents();
+        loadBlogs();
     });
-}
 
-async function loadBlogs() {
-    const spinner = document.getElementById('loadingSpinner');
-    const table = document.getElementById('blogTable');
-    
-    try {
-        spinner.style.display = 'block';
-        table.style.opacity = '0.5';
+    function initializeComponents() {
+        deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
 
-        const response = await fetch('/api/blogs');
-        if (!response.ok) throw new Error('Failed to fetch blogs');
-        const blogs = await response.json();
-
-        if (dataTable) {
-            dataTable.destroy();
-        }
-
-        renderBlogTable(blogs);
-        initializeDataTable();
-
-    } catch (error) {
-        console.error('Error:', error);
-        showNotification('Failed to load blogs', 'danger');
-    } finally {
-        spinner.style.display = 'none';
-        table.style.opacity = '1';
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+            if (blogToDelete) {
+                executeDelete(blogToDelete.id, blogToDelete.button);
+            }
+            deleteModal.hide();
+        });
     }
-}
 
-function renderBlogTable(blogs) {
-    const tableBody = document.getElementById('blogTableBody');
-    tableBody.innerHTML = '';
+    async function loadBlogs() {
+        const spinner = document.getElementById('loadingSpinner');
+        const table = document.getElementById('blogTable');
 
-    if (!blogs || blogs.length === 0) {
-        tableBody.innerHTML = `
+        try {
+            spinner.style.display = 'block';
+            table.style.opacity = '0.5';
+
+            const response = await fetch('/api/blogs');
+            if (!response.ok) throw new Error('Failed to fetch blogs');
+            const blogs = await response.json();
+
+            if (dataTable) {
+                dataTable.destroy();
+            }
+
+            renderBlogTable(blogs);
+            initializeDataTable();
+
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Failed to load blogs', 'danger');
+        } finally {
+            spinner.style.display = 'none';
+            table.style.opacity = '1';
+        }
+    }
+
+    function renderBlogTable(blogs) {
+        const tableBody = document.getElementById('blogTableBody');
+        tableBody.innerHTML = '';
+
+        if (!blogs || blogs.length === 0) {
+            tableBody.innerHTML = `
             <tr>
                 <td colspan="6" class="text-center py-4">
                     <div class="text-muted">
@@ -125,12 +124,12 @@ function renderBlogTable(blogs) {
                 </td>
             </tr>
         `;
-        return;
-    }
+            return;
+        }
 
-    blogs.forEach(blog => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
+        blogs.forEach(blog => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
             <td>
                 <div class="fw-bold">${(blog.title || '')}</div>
             </td>
@@ -157,172 +156,172 @@ function renderBlogTable(blogs) {
                 </div>
             </td>
         `;
-        tableBody.appendChild(row);
-    });
-}
-
-function initializeDataTable() {
-    dataTable = new simpleDatatables.DataTable("#blogTable", {
-        searchable: true,
-        fixedHeight: true,
-        perPage: 10,
-        perPageSelect: [5, 10, 15, 20, 25],
-        labels: {
-            placeholder: "Search blogs...",
-            noRows: "No blogs found",
-            info: "Showing {start} to {end} of {rows} entries",
-        }
-    });
-}
-
-function confirmDelete(id, button) {
-    blogToDelete = { id, button };
-    deleteModal.show();
-}
-
-async function executeDelete(id, button) {
-    try {
-        button.disabled = true;
-        const originalContent = button.innerHTML;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-
-        const response = await fetch(`/api/blogs/${id}`, {
-            method: 'DELETE'
+            tableBody.appendChild(row);
         });
-
-        if (!response.ok) throw new Error('Failed to delete blog');
-
-        await loadBlogs();
-        showNotification('Blog deleted successfully', 'success');
-
-    } catch (error) {
-        console.error('Error:', error);
-        showNotification('Failed to delete blog', 'danger');
-        button.disabled = false;
-        button.innerHTML = originalContent;
     }
-}
 
-function showNotification(message, type) {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show notification`;
-    alertDiv.innerHTML = `
+    function initializeDataTable() {
+        dataTable = new simpleDatatables.DataTable("#blogTable", {
+            searchable: true,
+            fixedHeight: true,
+            perPage: 10,
+            perPageSelect: [5, 10, 15, 20, 25],
+            labels: {
+                placeholder: "Search blogs...",
+                noRows: "No blogs found",
+                info: "Showing {start} to {end} of {rows} entries",
+            }
+        });
+    }
+
+    function confirmDelete(id, button) {
+        blogToDelete = { id, button };
+        deleteModal.show();
+    }
+
+    async function executeDelete(id, button) {
+        try {
+            button.disabled = true;
+            const originalContent = button.innerHTML;
+            button.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+            const response = await fetch(`/api/blogs/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) throw new Error('Failed to delete blog');
+
+            await loadBlogs();
+            showNotification('Blog deleted successfully', 'success');
+
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Failed to delete blog', 'danger');
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        }
+    }
+
+    function showNotification(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show notification`;
+        alertDiv.innerHTML = `
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
-    document.body.appendChild(alertDiv);
-    
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 3000);
-}
+        document.body.appendChild(alertDiv);
 
-// function escapeHtml(unsafe) {
-//     if (!unsafe) return '';
-//     return unsafe
-//         .replace(/&/g, "&amp;")
-//         .replace(/</g, "&lt;")
-//         .replace(/>/g, "&gt;")
-//         .replace(/"/g, "&quot;")
-//         .replace(/'/g, "&#039;");
-// }
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 3000);
+    }
 
-function formatDate(dateString) {
-    if (!dateString) return '';
-    return new Date(dateString).toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
+    // function escapeHtml(unsafe) {
+    //     if (!unsafe) return '';
+    //     return unsafe
+    //         .replace(/&/g, "&amp;")
+    //         .replace(/</g, "&lt;")
+    //         .replace(/>/g, "&gt;")
+    //         .replace(/"/g, "&quot;")
+    //         .replace(/'/g, "&#039;");
+    // }
+
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        return new Date(dateString).toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
 </script>
 
 <style>
-/* Table Styles */
-.table {
-    vertical-align: middle;
-}
-
-.table > :not(caption) > * > * {
-    padding: 1rem;
-}
-
-/* Button Styles */
-.btn-group .btn {
-    padding: 0.375rem 0.75rem;
-}
-
-/* Badge Styles */
-.badge {
-    font-weight: 500;
-    padding: 0.5em 1em;
-}
-
-/* Notification Styles */
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    min-width: 300px;
-    z-index: 1050;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-/* Loading Spinner */
-#loadingSpinner {
-    z-index: 1000;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 50%;
-    padding: 1rem;
-}
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-    .btn-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
+    /* Table Styles */
+    .table {
+        vertical-align: middle;
     }
-    
+
+    .table> :not(caption)>*>* {
+        padding: 1rem;
+    }
+
+    /* Button Styles */
+    .btn-group .btn {
+        padding: 0.375rem 0.75rem;
+    }
+
+    /* Badge Styles */
+    .badge {
+        font-weight: 500;
+        padding: 0.5em 1em;
+    }
+
+    /* Notification Styles */
     .notification {
-        width: 90%;
-        right: 5%;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        min-width: 300px;
+        z-index: 1050;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     }
-}
 
-/* Animation */
-.fade-enter {
-    opacity: 0;
-}
+    /* Loading Spinner */
+    #loadingSpinner {
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        padding: 1rem;
+    }
 
-.fade-enter-active {
-    opacity: 1;
-    transition: opacity 300ms ease-in;
-}
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
 
-/* DataTable Custom Styles */
-.datatable-wrapper .datatable-top,
-.datatable-wrapper .datatable-bottom {
-    padding: 1rem 0;
-}
+        .notification {
+            width: 90%;
+            right: 5%;
+        }
+    }
 
-.datatable-wrapper .datatable-search {
-    float: right;
-}
+    /* Animation */
+    .fade-enter {
+        opacity: 0;
+    }
 
-.datatable-wrapper .datatable-input {
-    padding: 0.375rem 0.75rem;
-    border: 1px solid #dee2e6;
-    border-radius: 0.25rem;
-}
+    .fade-enter-active {
+        opacity: 1;
+        transition: opacity 300ms ease-in;
+    }
 
-.datatable-wrapper .datatable-selector {
-    padding: 0.375rem 2.25rem 0.375rem 0.75rem;
-    border: 1px solid #dee2e6;
-    border-radius: 0.25rem;
-}
+    /* DataTable Custom Styles */
+    .datatable-wrapper .datatable-top,
+    .datatable-wrapper .datatable-bottom {
+        padding: 1rem 0;
+    }
+
+    .datatable-wrapper .datatable-search {
+        float: right;
+    }
+
+    .datatable-wrapper .datatable-input {
+        padding: 0.375rem 0.75rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+    }
+
+    .datatable-wrapper .datatable-selector {
+        padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+    }
 </style>
 
 <div th:replace="~{admin/footer-admin}"></div>

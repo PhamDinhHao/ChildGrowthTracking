@@ -35,8 +35,8 @@ public class ApiDashboardController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PaymentTransaction>> getAllTransactions() {
-        List<PaymentTransaction> transactions = transactionService.getAllTransactions();
+    public ResponseEntity<List<Map<String, Object>>> getAllTransactions() {
+        List<Map<String, Object>> transactions = transactionService.getAllTransactions();
         return ResponseEntity.ok(transactions);
     }
 
@@ -51,7 +51,7 @@ public class ApiDashboardController {
     public ResponseEntity<Map<String, Object>> getStatistics() {
         Map<String, Object> statistics = new HashMap<>();
         
-        List<PaymentTransaction> transactions = transactionService.getAllTransactions();
+        List<PaymentTransaction> transactions = transactionService.getAll();
         Long totalRevenue = transactions.stream()
                 .filter(t -> "success".equalsIgnoreCase(t.getStatus()))
                 .mapToLong(PaymentTransaction::getAmount)
