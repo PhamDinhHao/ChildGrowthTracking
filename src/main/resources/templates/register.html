@@ -47,6 +47,7 @@
                         <div class="mb-4 form-floating">
                             <input type="text" class="form-control" id="floatingFullname" placeholder="Full Name" name="fullname" required>
                             <label for="floatingFullname">Full Name</label>
+                            <div id="error-fullname" class="invalid-feedback" style="display: none;"></div>
                         </div>
                         <div class="mb-4 form-floating">
                             <input type="email" class="form-control" id="floatingEmail" placeholder="Email" name="email" required>
@@ -170,18 +171,60 @@
     document.getElementById("floatingConfirmPassword").addEventListener("input", function() {
         checkPasswordMatch();
     });
-    // Kiểm tra các trường trước khi submit form
-    document.querySelector("form").addEventListener("submit", async (e) => {
-        e.preventDefault(); // Ngăn chặn gửi form
 
-        // Kiểm tra tất cả các trường (username, email, phone)
+    // Validate fullname
+    function validateFullname(fullname) {
+        const nameRegex = /^[A-Za-zÀ-ỹ\s]+$/;
+        const inputField = document.getElementById("floatingFullname");
+        const errorMessage = document.getElementById("error-fullname");
+
+        if (!nameRegex.test(fullname)) {
+            errorMessage.style.display = "block";
+            errorMessage.innerText = "Full name can only contain letters";
+            inputField.classList.add("is-invalid");
+            return false;
+        } else {
+            errorMessage.style.display = "none";
+            inputField.classList.remove("is-invalid");
+            return true;
+        }
+    }
+
+    // Validate phone number
+    function validatePhone(phone) {
+        const phoneRegex = /^0\d{9}$/;
+        const inputField = document.getElementById("floatingPhone");
+        const errorMessage = document.getElementById("error-phone");
+
+        if (!phoneRegex.test(phone)) {
+            errorMessage.style.display = "block";
+            errorMessage.innerText = "Phone number must be 10 digits and start with 0";
+            inputField.classList.add("is-invalid");
+            return false;
+        } else {
+            errorMessage.style.display = "none";
+            inputField.classList.remove("is-invalid");
+            return true;
+        }
+    }
+
+    // Add event listeners for validation
+    document.getElementById("floatingFullname").addEventListener("input", (e) => validateFullname(e.target.value));
+    document.getElementById("floatingPhone").addEventListener("input", (e) => validatePhone(e.target.value));
+
+    // Update form submit handler
+    document.querySelector("form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
         const usernameValid = await checkAvailability("username", document.getElementById("floatingUsername").value);
         const emailValid = await checkAvailability("email", document.getElementById("floatingEmail").value);
-        const phoneValid = await checkAvailability("phone", document.getElementById("floatingPhone").value);
-        const passwordValid = checkPasswordMatch();  // Kiểm tra mật khẩu và xác nhận mật khẩu
+        const phoneValid = await checkAvailability("phone", document.getElementById("floatingPhone").value) && 
+                          validatePhone(document.getElementById("floatingPhone").value);
+        const passwordValid = checkPasswordMatch();
+        const fullnameValid = validateFullname(document.getElementById("floatingFullname").value);
 
-        if (usernameValid && emailValid && phoneValid && passwordValid) {
-            e.target.submit(); // Nếu không có lỗi thì gửi form
+        if (usernameValid && emailValid && phoneValid && passwordValid && fullnameValid) {
+            e.target.submit();
         }
     });
 });
