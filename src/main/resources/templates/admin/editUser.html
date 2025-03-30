@@ -51,6 +51,13 @@
                     <div class="mb-3">
                         <label for="password" class="form-label">New Password (optional)</label>
                         <input type="password" class="form-control" id="password">
+                        <div class="password-requirements small mt-2">
+                            <p id="length" class="mb-1">At least 8 characters</p>
+                            <p id="uppercase" class="mb-1">At least one uppercase letter</p>
+                            <p id="lowercase" class="mb-1">At least one lowercase letter</p>
+                            <p id="number" class="mb-1">At least one number</p>
+                            <p id="special" class="mb-1">At least one special character</p>
+                        </div>
                     </div>
 
                     <!-- Role -->
@@ -176,6 +183,35 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     };
 
+    // Thêm hàm validate password
+    const validatePassword = (password) => {
+        if (!password) return true; // Cho phép password trống vì là optional
+        
+        const requirements = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /[0-9]/.test(password),
+            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
+
+        // Cập nhật chỉ báo trực quan
+        Object.keys(requirements).forEach(req => {
+            const element = document.getElementById(req);
+            if (element) {
+                if (requirements[req]) {
+                    element.style.color = 'green';
+                    element.innerHTML = `✓ ${element.innerHTML.replace('✓ ', '').replace('✗ ', '')}`;
+                } else {
+                    element.style.color = 'red';
+                    element.innerHTML = `✗ ${element.innerHTML.replace('✓ ', '').replace('✗ ', '')}`;
+                }
+            }
+        });
+
+        return Object.values(requirements).every(Boolean);
+    };
+
     // Thêm event listeners cho validation realtime
     document.getElementById('fullName').addEventListener('input', (e) => {
         validateFullName(e.target.value.trim());
@@ -185,15 +221,27 @@ document.addEventListener('DOMContentLoaded', () => {
         validatePhone(e.target.value.trim());
     });
 
+    // Thêm event listener cho password
+    document.getElementById('password').addEventListener('input', (e) => {
+        validatePassword(e.target.value);
+    });
+
     // Form submission
     document.getElementById('userForm').addEventListener('submit', async (e) => {
         e.preventDefault();
 
         const fullName = document.getElementById('fullName').value.trim();
         const phone = document.getElementById('phone').value.trim();
+        const password = document.getElementById('password').value;
 
         // Validate before submission
         if (!validateFullName(fullName) || !validatePhone(phone)) {
+            return;
+        }
+
+        // Kiểm tra password nếu được nhập
+        if (password && !validatePassword(password)) {
+            showToast('Please ensure the password meets all requirements', 'danger');
             return;
         }
 
@@ -204,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
             email: document.getElementById('email').value,
             phoneNumber: phone,
             role: document.getElementById('role').value,
-            password: document.getElementById('password').value || undefined,
+            password: password || undefined,
         };
 
         try {

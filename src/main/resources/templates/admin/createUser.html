@@ -32,6 +32,13 @@
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
                         <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="password-requirements">
+                            <p id="length" class="mb-0">At least 8 characters</p>
+                            <p id="uppercase" class="mb-0">At least one uppercase letter</p>
+                            <p id="lowercase" class="mb-0">At least one lowercase letter</p>
+                            <p id="number" class="mb-0">At least one number</p>
+                            <p id="special" class="mb-0">At least one special character</p>
+                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -101,6 +108,32 @@ document.addEventListener('DOMContentLoaded', () => {
         return phoneRegex.test(phone);
     };
 
+    const validatePassword = (password) => {
+        const requirements = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /[0-9]/.test(password),
+            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
+
+        // Update visual indicators
+        Object.keys(requirements).forEach(req => {
+            const element = document.getElementById(req);
+            if (element) {
+                if (requirements[req]) {
+                    element.style.color = 'green';
+                    element.innerHTML = `✓ ${element.innerHTML.replace('✓ ', '').replace('✗ ', '')}`;
+                } else {
+                    element.style.color = 'red';
+                    element.innerHTML = `✗ ${element.innerHTML.replace('✓ ', '').replace('✗ ', '')}`;
+                }
+            }
+        });
+
+        return Object.values(requirements).every(Boolean);
+    };
+
     const checkField = async (field, value) => {
         if (!value) return true;
         
@@ -162,6 +195,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
     });
 
+    // Add password input listener
+    document.getElementById('password').addEventListener('input', (e) => {
+        validatePassword(e.target.value);
+    });
+
     // Form submission
     document.getElementById('userForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -178,8 +216,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Password validation
         const password = document.getElementById('password').value;
-        if (password.length < 6) {
-            showToast('Password must be at least 6 characters', 'danger');
+        if (!validatePassword(password)) {
+            showToast('Password does not meet requirements', 'danger');
             return;
         }
 
