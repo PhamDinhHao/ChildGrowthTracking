@@ -58,8 +58,8 @@ public class ConsultationApiController {
         User doctor = userService.findByUsername(auth.getName())
             .orElseThrow(() -> new RuntimeException("Doctor not found"));
         
-        List<Consultations> consultations = consultationService.findByDoctorId(doctor.getId());
-        consultations.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+        List<Map<String, Object>> consultations = consultationService.findByDoctorId(doctor.getId());
+        consultations.sort((a, b) -> ((LocalDate) b.get("createdAt")).compareTo((LocalDate) a.get("createdAt")));
         
         return ResponseEntity.ok(consultations);
     }
@@ -71,9 +71,9 @@ public class ConsultationApiController {
             .orElseThrow(() -> new RuntimeException("Doctor not found"));
         
         ConsultationStatus consultationStatus = ConsultationStatus.valueOf(status.toUpperCase());
-        List<Consultations> consultations = consultationService
+        List<Map<String, Object>> consultations = consultationService
             .findByStatusAndDoctorId(consultationStatus, doctor.getId());
-        consultations.sort((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()));
+        consultations.sort((a, b) -> ((LocalDate) b.get("createdAt")).compareTo((LocalDate) a.get("createdAt")));
         
         return ResponseEntity.ok(consultations);
     }

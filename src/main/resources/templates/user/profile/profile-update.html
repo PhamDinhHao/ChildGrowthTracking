@@ -23,7 +23,6 @@ role="tabpanel">
                 <label for="fullname" class="form-label">Full Name</label>
                 <input type="text" id="fullname" name="fullname" class="form-control" 
                        th:value="${user.fullName}" required 
-                       pattern="^[A-Za-z\s]+$"
                        title="Full name can only contain letters and spaces"
                        oninput="validateFullName(this)">
             </div>
@@ -114,9 +113,15 @@ document.getElementById('birth_date').addEventListener('change', function(e) {
     }
 
     function validateFullName(input) {
-        const fullNameRegex = /^[A-Za-z\s]+$/;
-        if (!fullNameRegex.test(input.value)) {
+        // Regex mới chấp nhận:
+        // - Chữ cái tiếng Việt có dấu
+        // - Chữ cái tiếng Anh
+        // - Khoảng trắng
+        const nameRegex = /^[A-Za-zÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂưăạảấầẩẫậắằẳẵặẹẻẽềềểỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ\s]+$/;
+        if (!nameRegex.test(input.value)) {
             input.setCustomValidity('Full name can only contain letters and spaces');
+        } else if (input.value.trim().length < 2) {
+            input.setCustomValidity('Full name must be at least 2 characters long');
         } else {
             input.setCustomValidity('');
         }
