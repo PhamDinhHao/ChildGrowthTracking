@@ -24,6 +24,7 @@
                 <table id="childrenTable" class="table table-bordered table-hover">
                     <thead class="table-light">
                         <tr>
+                            <th>Parent</th>
                             <th>Full Name</th>
                             <th>Birth Date</th>
                             <th>Gender</th>
@@ -138,6 +139,9 @@ function renderChildrenTable(children) {
     children.forEach(child => {
         const row = document.createElement('tr');
         row.innerHTML = `
+            <td>
+                <div class="fw-bold">${child.user.fullName || ''}</div>
+            </td>
             <td>
                 <div class="fw-bold">${child.fullName || ''}</div>
             </td>
