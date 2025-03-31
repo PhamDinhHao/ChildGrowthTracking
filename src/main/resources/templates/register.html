@@ -71,34 +71,63 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+    // Thêm hàm validate username
+    function validateUsername(username) {
+        const inputField = document.getElementById("floatingUsername");
+        const errorMessage = document.getElementById("error-username");
+
+        if (username.length < 8) {
+            errorMessage.style.display = "block";
+            errorMessage.innerText = "Username must be at least 8 characters long";
+            inputField.classList.add("is-invalid");
+            return false;
+        } else {
+            errorMessage.style.display = "none";
+            inputField.classList.remove("is-invalid");
+            return true;
+        }
+    }
+
     async function checkAvailability(field, value) {
-        if (!value.trim()) return; // Không kiểm tra nếu input rỗng
+        if (!value.trim()) return;
+
+        // Kiểm tra độ dài username trước khi gọi API
+        if (field === 'username' && !validateUsername(value)) {
+            return false;
+        }
 
         let response = await fetch(`/check-${field}?${field}=${value}`);
         let data = await response.json();
 
-        console.log(data);  // Kiểm tra dữ liệu trả về
-
         let inputField = document.getElementById(`floating${field.charAt(0).toUpperCase() + field.slice(1)}`);
         let errorMessage = document.getElementById(`error-${field}`);
 
-        // Kiểm tra nếu phần tử tồn tại trước khi thao tác với nó
         if (inputField && errorMessage) {
             if (!data.available) {
                 errorMessage.style.display = "block";
                 errorMessage.innerText = `${field.charAt(0).toUpperCase() + field.slice(1)} already exists.`;
                 inputField.classList.add("is-invalid");
-                return false; // Nếu có lỗi thì trả về false
+                return false;
             } else {
                 errorMessage.style.display = "none";
                 inputField.classList.remove("is-invalid");
-                return true; // Nếu không có lỗi thì trả về true
+                return true;
             }
         } else {
             console.error(`Input field or error message for ${field} not found.`);
             return false;
         }
     }
+
+    // Cập nhật event listener cho username
+    document.getElementById("floatingUsername").addEventListener("input", function(e) {
+        const username = e.target.value;
+        validateUsername(username);
+        if (username.length >= 8) {
+            checkAvailability("username", username);
+        }
+    });
+
     // Kiểm tra mật khẩu và xác nhận mật khẩu
     function checkPasswordMatch() {
         let password = document.getElementById("floatingPassword").value;
@@ -160,7 +189,6 @@
         }
     }
 
-    document.getElementById("floatingUsername").addEventListener("input", (e) => checkAvailability("username", e.target.value));
     document.getElementById("floatingEmail").addEventListener("input", (e) => checkAvailability("email", e.target.value));
     document.getElementById("floatingPhone").addEventListener("input", (e) => checkAvailability("phone", e.target.value));
 
@@ -212,11 +240,13 @@
     document.getElementById("floatingFullname").addEventListener("input", (e) => validateFullname(e.target.value));
     document.getElementById("floatingPhone").addEventListener("input", (e) => validatePhone(e.target.value));
 
-    // Update form submit handler
+    // Cập nhật form submit handler
     document.querySelector("form").addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        const usernameValid = await checkAvailability("username", document.getElementById("floatingUsername").value);
+        const username = document.getElementById("floatingUsername").value;
+        const usernameValidLength = validateUsername(username);
+        const usernameValid = usernameValidLength && await checkAvailability("username", username);
         const emailValid = await checkAvailability("email", document.getElementById("floatingEmail").value);
         const phoneValid = await checkAvailability("phone", document.getElementById("floatingPhone").value) && 
                           validatePhone(document.getElementById("floatingPhone").value);

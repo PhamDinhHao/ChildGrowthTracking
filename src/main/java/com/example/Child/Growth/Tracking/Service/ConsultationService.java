@@ -2,6 +2,9 @@ package com.example.Child.Growth.Tracking.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -31,8 +34,17 @@ public class ConsultationService {
             throw new RuntimeException("Error creating consultation: " + e.getMessage());
         }
     }
-    public List<Consultations> findByDoctorId(Long doctorId) {
-        return consultationRepository.findByDoctorId(doctorId);
+    public List<Map<String, Object>> findByDoctorId(Long doctorId) {
+        List<Object[]> results = consultationRepository.findConsultationDetailsByDoctorId(doctorId);
+        return results.stream().map(result -> {
+            Map<String, Object> map = new HashMap<>();
+            Consultations consultation = (Consultations) result[0];
+            map.putAll(convertConsultationToMap(consultation));
+            map.put("childName", result[1]);
+            map.put("userName", result[2]);
+            map.put("userPhone", result[3]);
+            return map;
+        }).collect(Collectors.toList());
     }
     public List<Consultations> findByChildId(Long childId) {
         return consultationRepository.findByChildId(childId);
@@ -43,8 +55,17 @@ public class ConsultationService {
     public List<Consultations> findByChildIdAndStatusPending(Long childId) {
         return consultationRepository.findByChildIdAndStatus(childId, ConsultationStatus.PENDING);
     }
-    public List<Consultations> findByStatusAndDoctorId(ConsultationStatus status, Long doctorId) {
-        return consultationRepository.findByStatusAndDoctorId(status, doctorId);
+    public List<Map<String, Object>> findByStatusAndDoctorId(ConsultationStatus status, Long doctorId) {
+        List<Object[]> results = consultationRepository.findConsultationDetailsByStatusAndDoctorId(status, doctorId);
+        return results.stream().map(result -> {
+            Map<String, Object> map = new HashMap<>();
+            Consultations consultation = (Consultations) result[0];
+            map.putAll(convertConsultationToMap(consultation));
+            map.put("childName", result[1]);
+            map.put("userName", result[2]);
+            map.put("userPhone", result[3]);
+            return map;
+        }).collect(Collectors.toList());
     }
     public void updateResponse(Long id, String response) {
         Consultations consultation = consultationRepository.findById(id)
@@ -55,5 +76,18 @@ public class ConsultationService {
     }
     public void deleteById(Long id) {
         consultationRepository.deleteById(id);
+    }
+
+    private Map<String, Object> convertConsultationToMap(Consultations consultation) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", consultation.getId());
+        map.put("request", consultation.getRequest());
+        map.put("response", consultation.getResponse());
+        map.put("status", consultation.getStatus());
+        map.put("createdAt", consultation.getCreatedAt());
+        map.put("memberId", consultation.getMemberId());
+        map.put("doctorId", consultation.getDoctorId());
+        map.put("childId", consultation.getChildId());
+        return map;
     }
 }

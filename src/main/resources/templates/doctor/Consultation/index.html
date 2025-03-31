@@ -120,8 +120,18 @@ function renderConsultations(consultations) {
                         </div>
                         <div class="child-info">
                             <span class="child-name">
-                                <i class="fas fa-child me-1"></i> Child ID: 
-                                <span>${consultation.childId}</span>
+                                <i class="fas fa-child me-1"></i> 
+                                <span>${consultation.childName}</span>
+                            </span>
+                        </div>
+                        <div class="user-info">
+                            <span class="user-name">
+                                <i class="fas fa-user me-1"></i> 
+                                <span>${consultation.userName}</span>
+                            </span>
+                            <span class="user-phone ms-3">
+                                <i class="fas fa-phone me-1"></i> 
+                                <span>${consultation.userPhone}</span>
                             </span>
                         </div>
                     </div>
@@ -153,8 +163,28 @@ function renderConsultations(consultations) {
                         </h6>
                         
                         ${consultation.response ? `
-                            <div class="message response-message">
-                                <p>${consultation.response}</p>
+                            <div class="message response-message" id="response-view-${consultation.id}">
+                                <div class="response-header">
+                                    <p>${consultation.response}</p>
+                                    <button class="btn-edit" onclick="toggleEditMode(${consultation.id})">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="response-form-container d-none" id="response-edit-${consultation.id}">
+                                <div class="form-floating mb-3">
+                                    <textarea class="form-control" id="response-${consultation.id}" 
+                                              placeholder="Edit your medical advice" rows="4">${consultation.response}</textarea>
+                                    <label for="response-${consultation.id}">Edit your response</label>
+                                </div>
+                                <div class="edit-actions">
+                                    <button onclick="cancelEdit(${consultation.id})" class="btn-cancel">
+                                        <i class="fas fa-times me-2"></i>Cancel
+                                    </button>
+                                    <button onclick="submitResponse(${consultation.id})" class="btn-respond">
+                                        <i class="fas fa-save me-2"></i>Save Changes
+                                    </button>
+                                </div>
                             </div>
                         ` : `
                             <div class="response-form-container">
@@ -262,6 +292,21 @@ function updateActiveButton(status) {
 function showNotification(message, type) {
     // Implement your notification system here
     // You can use the same notification system from previous examples
+}
+
+// Thêm các hàm mới để xử lý edit
+function toggleEditMode(consultationId) {
+    const viewElement = document.getElementById(`response-view-${consultationId}`);
+    const editElement = document.getElementById(`response-edit-${consultationId}`);
+    viewElement.classList.add('d-none');
+    editElement.classList.remove('d-none');
+}
+
+function cancelEdit(consultationId) {
+    const viewElement = document.getElementById(`response-view-${consultationId}`);
+    const editElement = document.getElementById(`response-edit-${consultationId}`);
+    viewElement.classList.remove('d-none');
+    editElement.classList.add('d-none');
 }
 
 // Load consultations when page loads
@@ -619,6 +664,23 @@ body {
     background-color: var(--bg-light);
 }
 
+.user-info {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.user-name, .user-phone {
+    display: inline-flex;
+    align-items: center;
+}
+
+.user-name i, .user-phone i {
+    font-size: 0.875rem;
+}
+
 @media (max-width: 992px) {
     .dashboard-header {
         flex-direction: column;
@@ -650,6 +712,52 @@ body {
     .filter-group .btn {
         flex: 1;
     }
+}
+
+.response-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.btn-edit {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-edit:hover {
+    color: #334bcc;
+}
+
+.edit-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.btn-cancel {
+    background-color: var(--bg-light);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-cancel:hover {
+    background-color: var(--border-color);
+}
+
+.d-none {
+    display: none !important;
 }
 </style>
 

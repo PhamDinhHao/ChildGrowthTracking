@@ -56,7 +56,7 @@
                     <li class="nav-item">
                         <a class="nav-link" th:classappend="${page == 'feedback' ? 'active' : ''}" href="/feedback">Feedback</a>
                     </li> 
-                    <li class="nav-item">
+                    <li class="nav-item" sec:authorize="!hasAnyRole('ADMIN')">
                         <a class="nav-link" th:classappend="${page == 'children' ? 'active' : ''}" href="/children">Children</a>
                     </li>   
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">

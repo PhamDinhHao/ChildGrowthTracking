@@ -100,7 +100,6 @@ async function loadFeedbacks() {
 
     } catch (error) {
         console.error('Error:', error);
-        showNotification('Failed to load feedbacks', 'danger');
     } finally {
         spinner.style.display = 'none';
         table.style.opacity = '1';
