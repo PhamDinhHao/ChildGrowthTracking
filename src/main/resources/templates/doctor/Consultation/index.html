@@ -45,6 +45,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <!-- Add growth chart canvas -->
+                <canvas id="growthChart" style="max-height: 400px; margin-bottom: 2rem;"></canvas>
+                
                 <div class="growth-records" id="growthRecordsContainer">
                     <!-- Growth records will be loaded here -->
                 </div>
@@ -67,6 +70,18 @@ try {
     csrfToken = '';
     csrfHeader = 'X-CSRF-TOKEN';
 }
+
+// Add WHO data
+const whoData = {
+    male: {
+        weight: [3.3, 6.0, 7.8, 9.2, 10.2, 11.1, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0],
+        height: [50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 168, 172, 175, 178, 180, 182, 184]
+    },
+    female: {
+        weight: [3.2, 5.5, 7.0, 8.2, 9.0, 9.8, 10.5, 11.5, 12.5, 13.5, 14.5, 15.5, 16.5, 17.5, 18.5, 19.5, 20.5, 21.5, 22.5],
+        height: [49, 58, 68, 78, 88, 98, 108, 118, 128, 138, 148, 158, 165, 168, 170, 172, 174, 175, 176]
+    }
+};
 
 async function loadConsultations(status = 'ALL') {
     try {
@@ -231,14 +246,34 @@ async function submitResponse(consultationId) {
         showNotification('Failed to submit response', 'danger');
     }
 }
-
+function formatDate(dateString) {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
 async function loadGrowthRecords(childId) {
     try {
-        const response = await fetch(`/api/growth-records/child/${childId}`);
-        if (!response.ok) throw new Error('Failed to fetch growth records');
-        const records = await response.json();
+        // Fetch both child and growth records data
+        const [childResponse, recordsResponse] = await Promise.all([
+            fetch(`/api/children/${childId}`),
+            fetch(`/api/growth-records/child/${childId}`)
+        ]);
+
+        if (!childResponse.ok || !recordsResponse.ok) {
+            throw new Error('Failed to fetch data');
+        }
+
+        const child = await childResponse.json();
+        const records = await recordsResponse.json();
         
         renderGrowthRecords(records);
+        initializeGrowthChart(records, child);
+        
         const modal = new bootstrap.Modal(document.getElementById('growthModal'));
         modal.show();
     } catch (error) {
@@ -280,6 +315,91 @@ function renderGrowthRecords(records) {
                 </tbody>
             </table>
         </div>`;
+}
+
+function initializeGrowthChart(records, child) {
+    const ctx = document.getElementById("growthChart").getContext("2d");
+    
+    // Destroy existing chart if it exists
+    if (window.growthChart instanceof Chart) {
+        window.growthChart.destroy();
+    }
+    
+    const dates = records.map(record => formatDate(record.recordDate));
+    const weights = records.map(record => parseFloat(record.weight));
+    const heights = records.map(record => parseFloat(record.height));
+
+    const whoWeights = records.map(record => {
+        const recordDate = new Date(record.recordDate);
+        const ageMonths = getAgeInMonths(recordDate, new Date(child.birthDate));
+        return getWHOValue(ageMonths, 'weight', child.gender);
+    });
+
+    const whoHeights = records.map(record => {
+        const recordDate = new Date(record.recordDate);
+        const ageMonths = getAgeInMonths(recordDate, new Date(child.birthDate));
+        return getWHOValue(ageMonths, 'height', child.gender);
+    });
+    
+    window.growthChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: dates,
+            datasets: [
+                {
+                    label: "Weight (kg)",
+                    data: weights,
+                    borderColor: "blue",
+                    fill: false
+                },
+                {
+                    label: "Height (cm)",
+                    data: heights,
+                    borderColor: "green",
+                    fill: false
+                },
+                {
+                    label: "WHO Weight (kg)",
+                    data: whoWeights,
+                    borderColor: "rgba(0, 0, 255, 0.3)",
+                    borderDash: [5, 5],
+                    fill: false
+                },
+                {
+                    label: "WHO Height (cm)",
+                    data: whoHeights,
+                    borderColor: "rgba(0, 255, 0, 0.3)",
+                    borderDash: [5, 5],
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: "Date" } },
+                y: { title: { display: true, text: "Value" } }
+            }
+        }
+    });
+}
+
+function getAgeInMonths(recordDate, birthDate) {
+    if (typeof recordDate === 'string') {
+        recordDate = new Date(recordDate);
+    }
+    if (typeof birthDate === 'string') {
+        birthDate = new Date(birthDate);
+    }
+    const diffMonths = (recordDate.getFullYear() - birthDate.getFullYear()) * 12;
+    return diffMonths + (recordDate.getMonth() - birthDate.getMonth());
+}
+
+function getWHOValue(ageMonths, metric, gender) {
+    const genderData = gender.toLowerCase() === 'male' ? whoData.male : whoData.female;
+    const index = Math.min(Math.floor(ageMonths / 12), 18);
+    return genderData[metric][index];
 }
 
 function updateActiveButton(status) {
